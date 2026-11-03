@@ -1,0 +1,46 @@
+# デモ用イメージ写真の取り込み（1回きりの作業用）
+# demo-photos ブランチに push すると、store/demo-photos-urls.txt の各行「名前 URL」から画像を取得し、
+# 横1200px・WebPに縮小・圧縮して public/demo/<名前>.webp に置き、demo-photos-output ブランチに保存する。
+# URL は Canva の書き出し用の一時リンク（しばらくすると無効になる）。
+name: Demo photos
+
+on:
+  push:
+    branches: [demo-photos]
+
+permissions:
+  contents: write
+
+jobs:
+  fetch:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - name: 取得して縮小・圧縮
+        run: |
+          pip install --quiet pillow
+          mkdir -p out/public/demo raw
+          while read -r name url; do
+            [ -z "$name" ] && continue
+            curl -fsSL "$url" -o "raw/$name"
+            python3 - "$name" <<'PY'
+          import sys
+          from PIL import Image
+          name = sys.argv[1]
+          im = Image.open(f"raw/{name}").convert("RGB")
+          w = 1200
+          im = im.resize((w, round(im.height * w / im.width)), Image.LANCZOS)
+          im.save(f"out/public/demo/{name}.webp", "WEBP", quality=80, method=6)
+          print(name, im.size)
+          PY
+          done < store/demo-photos-urls.txt
+          ls -la out/public/demo
+      - name: 保存
+        run: |
+          cd out
+          git init -q -b demo-photos-output
+          git config user.name "github-actions"
+          git config user.email "github-actions@users.noreply.github.com"
+          git add . && git commit -qm "demo photos"
+          git push -f "https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}.git" demo-photos-output
