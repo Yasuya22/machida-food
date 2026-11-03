@@ -119,7 +119,8 @@ MVPはデモ用の**架空5店舗**で完成させる。実在店舗の名前・
 - 2026-11-02：事業構想の整理が完了。PROJECT_BRIEF.md と本ファイルを作成
 - 2026-11-02：事業提案書・プレゼン資料・デモ版アプリ（1ファイルの試作）を作成。追加機能を PROJECT_BRIEF.md 第15章に記録
 - 2026-11-03：来店認証（会員証QR＋予備の店舗PIN）、ログイン（メールで開始・後でLINE）、Phase割り当てを確定。Phase 1のDB設計を作成（`docs/DB_DESIGN.md`、`supabase/`）。`bash scripts/test-db.sh` で21項目のアクセステストがすべて合格
-- 次の作業：GitHub・Supabaseのアカウント作成（ご本人、`docs/SETUP_ACCOUNTS.md`）→ 設計ファイルをGitHubに保存 → Supabaseの開発用プロジェクトにDBを反映 → Next.js でPhase 1の作成開始
+- 2026-11-03：GitHub（`Yasuya22/machida-food`、非公開）とSupabase（開発用 `machida-food-dev`、東京リージョン）を作成。設計ファイル一式をGitHubに保存
+- 次の作業：Supabaseの開発用プロジェクトにDBを反映（`supabase/dev/setup_dev_all_in_one.sql` をSQL Editorで実行）→ Next.js でPhase 1の作成開始
 
 ## データベースの変更ルール
 
