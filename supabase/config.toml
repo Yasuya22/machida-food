@@ -1,0 +1,25 @@
+# Supabase CLI の設定（手元・自動チェックで一時的なSupabaseを立ち上げるときに使う）
+# 本番・開発用プロジェクトの設定ではない。値の無い項目はCLIの既定値になる。
+project_id = "machida-food"
+
+[api]
+port = 54321
+
+[db]
+port = 54322
+major_version = 17
+
+[db.seed]
+enabled = true
+sql_paths = ["./seed.sql"]
+
+[studio]
+enabled = false
+
+[auth]
+site_url = "http://127.0.0.1:3000"
+additional_redirect_urls = ["http://127.0.0.1:3000/**", "http://localhost:3000/**"]
+
+[auth.email]
+enable_signup = true
+max_frequency = "1s"
