@@ -18,7 +18,7 @@ export function StoreCard({ store }: { store: StoreView }) {
       href={`/stores/${store.id}`}
       className="flex gap-3 rounded-2xl border border-line bg-surface p-3 shadow-card transition-colors hover:border-accent-bright"
     >
-      <StoreThumb name={store.name} genre={store.genre} />
+      <StoreThumb name={store.name} genre={store.genre} cover={store.cover_path} />
       <div className="min-w-0 flex-1">
         <p className="truncate font-bold">{store.name}</p>
         <p className="truncate text-xs text-muted">

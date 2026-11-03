@@ -6,6 +6,8 @@ import { Section } from "@/components/ui/Section";
 import { cardClass } from "@/components/ui/Flash";
 import { getSession } from "@/lib/auth";
 import { minutesToLabel, tokyoNow } from "@/lib/stores/status";
+import { Flash } from "@/components/ui/Flash";
+import { exchange } from "./actions";
 
 export const metadata: Metadata = { title: "特典" };
 export const dynamic = "force-dynamic";
@@ -14,6 +16,7 @@ type Card = { store_id: string; store_name: string; stamp_goal: number; stamp_re
 type Reward = { id: string; title: string; issued_at: string; used_at: string | null; stores: { name: string } | null };
 type MyCoupon = { coupon_id: string; coupons: { title: string; conditions: string | null; ends_at: string | null; store_id: string; stores: { name: string } | null } | null };
 type Ledger = { id: string; delta: number; reason: string; created_at: string };
+type Item = { id: string; title: string; description: string | null; points_cost: number; stock: number | null; coupon_id: string; stores: { name: string } | null };
 
 function dateLabel(iso: string) {
   const t = tokyoNow(new Date(iso));
@@ -21,7 +24,8 @@ function dateLabel(iso: string) {
   return `${Number(m)}/${Number(d)} ${minutesToLabel(t.minutes)}`;
 }
 
-export default async function RewardsPage() {
+export default async function RewardsPage({ searchParams }: { searchParams: Promise<{ msg?: string }> }) {
+  const { msg } = await searchParams;
   const session = await getSession();
   if (!session) {
     return (
@@ -41,13 +45,17 @@ export default async function RewardsPage() {
   const { data: profile } = await db.from("profiles").select("user_id").eq("user_id", session.userId).maybeSingle();
   if (!profile) redirect("/register?next=/rewards");
 
-  const [cards, rewards, coupons, used, ledger] = await Promise.all([
+  const [cards, rewards, coupons, used, ledger, items, points] = await Promise.all([
     db.from("my_stamp_cards").select("store_id,store_name,stamp_goal,stamp_reward,total_stamps,current_stamps").eq("user_id", session.userId).returns<Card[]>(),
     db.from("stamp_rewards").select("id,title,issued_at,used_at,stores(name)").eq("user_id", session.userId).order("issued_at", { ascending: false }).returns<Reward[]>(),
     db.from("user_coupons").select("coupon_id,coupons(title,conditions,ends_at,store_id,stores(name))").eq("user_id", session.userId).returns<MyCoupon[]>(),
     db.from("coupon_redemptions").select("coupon_id").eq("user_id", session.userId).returns<{ coupon_id: string }[]>(),
     db.from("point_ledger").select("id,delta,reason,created_at").eq("user_id", session.userId).order("created_at", { ascending: false }).limit(30).returns<Ledger[]>(),
+    db.from("exchange_items").select("id,title,description,points_cost,stock,coupon_id,stores(name)").eq("is_active", true).order("sort").returns<Item[]>(),
+    db.from("my_points").select("balance").eq("user_id", session.userId).maybeSingle(),
   ]);
+  const balance = (points.data as { balance: number } | null)?.balance ?? 0;
+  const owned = new Set((coupons.data ?? []).map((c) => c.coupon_id));
   const usedSet = new Set((used.data ?? []).map((u) => u.coupon_id));
   const now = Date.now();
   const myCoupons = (coupons.data ?? []).filter((c) => c.coupons && !usedSet.has(c.coupon_id) && (!c.coupons.ends_at || Date.parse(c.coupons.ends_at) > now));
@@ -56,6 +64,7 @@ export default async function RewardsPage() {
     <main>
       <PageHeader title="特典" lead="スタンプと町田ポイント" />
       <div className="mx-auto max-w-md space-y-8 px-4 py-6">
+        <Flash msg={msg} />
         <Section title="スタンプカード" isEmpty={(cards.data ?? []).length === 0} empty="まだスタンプはありません。お店で会員証を見せるとたまります（1店舗1日1回）。">
           <div className="space-y-3">
             {(cards.data ?? []).map((c) => (
@@ -94,6 +103,34 @@ export default async function RewardsPage() {
           </div>
         </Section>
 
+        <div id="exchange">
+          <Section title="ポイント交換" note={`いまの残高 ${balance.toLocaleString("ja-JP")}pt`} isEmpty={(items.data ?? []).length === 0} empty="いま交換できる品はありません。">
+            <div className="space-y-2">
+              {(items.data ?? []).map((it) => {
+                const done = owned.has(it.coupon_id);
+                const soldOut = it.stock !== null && it.stock <= 0;
+                const short = balance < it.points_cost;
+                return (
+                  <div key={it.id} className={`${cardClass} flex items-center justify-between gap-3`}>
+                    <div className="min-w-0">
+                      <p className="font-bold">{it.title}</p>
+                      <p className="text-xs text-muted">{it.stores?.name}{it.description ? `・${it.description}` : ""}{it.stock !== null ? `・残り${it.stock}` : ""}</p>
+                      <p className="mt-1 font-display text-lg font-bold text-brand">{it.points_cost.toLocaleString("ja-JP")}pt</p>
+                    </div>
+                    <form action={exchange}>
+                      <input type="hidden" name="item_id" value={it.id} />
+                      <button disabled={done || soldOut || short} className="shrink-0 rounded-xl bg-brand px-4 py-2.5 text-sm font-bold text-on-brand disabled:bg-line disabled:text-muted">
+                        {done ? "交換済み" : soldOut ? "品切れ" : short ? "pt不足" : "交換する"}
+                      </button>
+                    </form>
+                  </div>
+                );
+              })}
+              <p className="text-[11px] text-muted">交換品は各店舗のご厚意による販促品です。交換してもランク（累計獲得ポイント）は下がりません。町田ポイントは換金・購入はできません。</p>
+            </div>
+          </Section>
+        </div>
+
         <Section title="町田ポイントの履歴" isEmpty={(ledger.data ?? []).length === 0} empty="まだ履歴はありません。">
           <ul className="divide-y divide-line rounded-2xl border border-line bg-surface shadow-card">
             {(ledger.data ?? []).map((l) => (
@@ -106,7 +143,7 @@ export default async function RewardsPage() {
               </li>
             ))}
           </ul>
-          <p className="text-[11px] text-muted">町田ポイントは換金・購入はできません。ポイント交換は今後追加します。</p>
+          <p className="text-[11px] text-muted">町田ポイントは換金・購入はできません。</p>
         </Section>
       </div>
     </main>

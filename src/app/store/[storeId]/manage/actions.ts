@@ -172,6 +172,47 @@ export async function deleteSeatType(form: FormData) {
   back(path, error, "席の種類を削除しました");
 }
 
+// ---------- ポイント交換品 ----------
+
+/** 交換品を登録する（交換用クーポンを作ってから交換品にする） */
+export async function addExchangeItem(form: FormData) {
+  const { db, storeId, path } = await ctx(form);
+  const title = str(form, "title");
+  const cost = optInt(form, "points_cost");
+  if (!title || !cost || cost < 1) back(path, null, "品名と必要ポイントを入力してください");
+  const { data: coupon, error: e1 } = await db
+    .from("coupons")
+    .insert({ store_id: storeId, title: `【交換】${title}`, conditions: "ポイント交換で受け取った方のみ・1回限り", kind: "exchange" })
+    .select("id")
+    .single();
+  if (e1 || !coupon) back(path, e1, "");
+  const { error } = await db.from("exchange_items").insert({
+    store_id: storeId,
+    coupon_id: (coupon as { id: string }).id,
+    title,
+    description: optStr(form, "description"),
+    points_cost: cost,
+    stock: optInt(form, "stock"),
+  });
+  back(path, error, "交換品を登録しました");
+}
+
+export async function toggleExchangeItem(form: FormData) {
+  const { db, storeId, path } = await ctx(form);
+  const { error } = await db.from("exchange_items").update({ is_active: str(form, "active") === "1" }).eq("id", str(form, "id")).eq("store_id", storeId);
+  back(path, error, "交換品の公開を切り替えました");
+}
+
+// ---------- 店舗の写真 ----------
+
+export async function saveCover(form: FormData) {
+  const { db, storeId, path } = await ctx(form);
+  const image = str(form, "image_path");
+  if (!image.startsWith(`stores/${storeId}/`)) back(path, null, "画像の場所が正しくありません");
+  const { error } = await db.from("stores").update({ cover_path: image }).eq("id", storeId);
+  back(path, error, "店舗の写真を保存しました");
+}
+
 // ---------- 店舗PIN ----------
 
 export async function rotatePin(form: FormData) {

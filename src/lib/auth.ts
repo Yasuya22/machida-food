@@ -48,6 +48,11 @@ const MESSAGES: Record<string, string> = {
   only_admin_can_change_status: "掲載状態は運営だけが変更できます。",
   pin_locked: "店舗PINの入力を何度も間違えたため、本日はPINでの来店処理ができません。お店の端末で会員証を読み取ってもらってください。",
   not_store_owner: "この操作はお店のオーナーだけができます。",
+  exchange_not_available: "この交換品は現在交換できません。",
+  exchange_sold_out: "この交換品はなくなりました。",
+  exchange_already_done: "この交換品は交換済みです（1人1回）。",
+  not_enough_points: "町田ポイントが足りません。",
+  exchange_coupon_mismatch: "交換品の設定が正しくありません。",
   staff_account_cannot_self_delete: "店舗・運営のアカウントはこの画面から退会できません。運営にご連絡ください。",
 };
 

@@ -62,7 +62,7 @@ export default async function StorePage({ params }: Props) {
   return (
     <main>
       <div className="relative">
-        <StoreThumb name={store.name} genre={store.genre} size="lg" />
+        <StoreThumb name={store.name} genre={store.genre} cover={store.cover_path} size="lg" />
         <Link
           href="/search"
           aria-label="探すに戻る"

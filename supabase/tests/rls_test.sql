@@ -384,4 +384,106 @@ do $$ begin
   raise notice 'PASS T24 店舗PINはその店の人だけが見られ、毎日変わり、間違いは記録・5回で当日停止、オーナーが作り直せる';
 end $$;
 
+
+-- ---------- ポイント交換 ----------
+-- まちだ苑のオーナー（b1）が交換用クーポンと交換品を登録できる。翠のオーナー（c1）は登録できない
+set role authenticated;
+select set_config('request.jwt.claim.sub', '00000000-0000-0000-0000-0000000000b1', false) \g /dev/null
+insert into public.coupons (id, store_id, title, kind) values
+  ('c0000000-0000-0000-0000-000000000901', '11111111-1111-1111-1111-000000000001', '交換：ドリンク1杯', 'exchange');
+insert into public.exchange_items (id, store_id, coupon_id, title, points_cost, stock) values
+  ('e0000000-0000-0000-0000-000000000001', '11111111-1111-1111-1111-000000000001', 'c0000000-0000-0000-0000-000000000901', 'ドリンク1杯', 300, 1);
+select set_config('request.jwt.claim.sub', '00000000-0000-0000-0000-0000000000c1', false) \g /dev/null
+do $$ begin
+  begin
+    insert into public.exchange_items (store_id, coupon_id, title, points_cost)
+    values ('11111111-1111-1111-1111-000000000001', 'c0000000-0000-0000-0000-000000000901', '不正な交換品', 1);
+    raise exception 'FAIL T25: 他店のオーナーが交換品を登録できた';
+  exception when insufficient_privilege then null; end;
+end $$;
+-- 会員（d2）が交換する：ポイントが減り、クーポンが配られ、2回目は止まる
+select set_config('request.jwt.claim.sub', '00000000-0000-0000-0000-0000000000d2', false) \g /dev/null
+do $$
+declare before int; after int; earned_before int; earned_after int; r jsonb;
+begin
+  select balance, earned into before, earned_before from public.my_points where user_id = '00000000-0000-0000-0000-0000000000d2';
+  r := public.exchange_points('e0000000-0000-0000-0000-000000000001');
+  select balance, earned into after, earned_after from public.my_points where user_id = '00000000-0000-0000-0000-0000000000d2';
+  if after <> before - 300 then raise exception 'FAIL T25: 交換でポイントが正しく減らない（% → %）', before, after; end if;
+  if earned_after <> earned_before then raise exception 'FAIL T25: 交換で累計獲得ポイント（ランク）が変わった'; end if;
+  if not exists (select 1 from public.user_coupons where coupon_id = 'c0000000-0000-0000-0000-000000000901') then raise exception 'FAIL T25: 交換したクーポンが配られていない'; end if;
+  begin perform public.exchange_points('e0000000-0000-0000-0000-000000000001'); raise exception 'FAIL T25: 同じ交換品を2回交換できた';
+  exception when unique_violation then null; when others then if sqlerrm not in ('exchange_already_done', 'exchange_sold_out') then raise; end if; end;
+end $$;
+-- 在庫切れ・残高不足は止まる（d1：在庫0になった交換品）
+select set_config('request.jwt.claim.sub', '00000000-0000-0000-0000-0000000000d1', false) \g /dev/null
+do $$ begin
+  begin perform public.exchange_points('e0000000-0000-0000-0000-000000000001'); raise exception 'FAIL T25: 在庫切れでも交換できた';
+  exception when others then if sqlerrm <> 'exchange_sold_out' then raise; end if; end;
+end $$;
+reset role;
+set role authenticated;
+select set_config('request.jwt.claim.sub', '00000000-0000-0000-0000-0000000000b1', false) \g /dev/null
+insert into public.coupons (id, store_id, title, kind) values
+  ('c0000000-0000-0000-0000-000000000902', '11111111-1111-1111-1111-000000000001', '交換：コース料理', 'exchange');
+insert into public.exchange_items (id, store_id, coupon_id, title, points_cost) values
+  ('e0000000-0000-0000-0000-000000000002', '11111111-1111-1111-1111-000000000001', 'c0000000-0000-0000-0000-000000000902', 'コース料理', 99999);
+select set_config('request.jwt.claim.sub', '00000000-0000-0000-0000-0000000000d2', false) \g /dev/null
+do $$ begin
+  begin perform public.exchange_points('e0000000-0000-0000-0000-000000000002'); raise exception 'FAIL T25: 残高不足でも交換できた';
+  exception when others then if sqlerrm <> 'not_enough_points' then raise; end if; end;
+end $$;
+reset role;
+do $$ begin
+  if has_function_privilege('anon', 'public.exchange_points(uuid)', 'execute') then raise exception 'FAIL T25: 未ログインで交換の関数を呼べる'; end if;
+  raise notice 'PASS T25 ポイント交換：残高・2回目・在庫をDBで確認、ランクは下がらず、他店は交換品を登録できない';
+end $$;
+
+
+-- ---------- 画像のアップロード ----------
+set role authenticated;
+select set_config('request.jwt.claim.sub', '00000000-0000-0000-0000-0000000000b1', false) \g /dev/null
+insert into storage.objects (bucket_id, name) values ('public-images', 'stores/11111111-1111-1111-1111-000000000001/cover-1.webp');
+update public.stores set cover_path = 'stores/11111111-1111-1111-1111-000000000001/cover-1.webp' where id = '11111111-1111-1111-1111-000000000001';
+do $$ begin
+  begin insert into storage.objects (bucket_id, name) values ('public-images', 'stores/11111111-1111-1111-1111-000000000002/x.webp');
+        raise exception 'FAIL T26: 他店の写真を登録できた';
+  exception when insufficient_privilege then null; end;
+  begin insert into storage.objects (bucket_id, name) values ('public-images', 'cosmetics/x.webp');
+        raise exception 'FAIL T26: オーナーが衣装の画像を登録できた';
+  exception when insufficient_privilege then null; end;
+end $$;
+select set_config('request.jwt.claim.sub', '00000000-0000-0000-0000-0000000000b2', false) \g /dev/null
+do $$ begin
+  begin insert into storage.objects (bucket_id, name) values ('public-images', 'stores/11111111-1111-1111-1111-000000000001/staff.webp');
+        raise exception 'FAIL T26: スタッフが店舗の写真を登録できた';
+  exception when insufficient_privilege then null; end;
+end $$;
+select set_config('request.jwt.claim.sub', '00000000-0000-0000-0000-0000000000a1', false) \g /dev/null
+insert into storage.objects (bucket_id, name) values ('public-images', 'cosmetics/outfit-1.webp');
+select set_config('request.jwt.claim.sub', '00000000-0000-0000-0000-0000000000d1', false) \g /dev/null
+do $$ begin
+  begin insert into storage.objects (bucket_id, name) values ('public-images', 'stores/../cosmetics/y.webp');
+        raise exception 'FAIL T26: 会員が画像を登録できた';
+  exception when insufficient_privilege then null; end;
+end $$;
+reset role;
+do $$ begin
+  if (select cover_path from public.stores where id = '11111111-1111-1111-1111-000000000001') is null then raise exception 'FAIL T26: 店舗の写真を設定できない'; end if;
+  raise notice 'PASS T26 画像：店舗の写真はその店のオーナー・運営だけ、衣装の画像は運営だけが登録できる';
+end $$;
+
+
+-- ---------- 期限切れの会員証番号の片付け ----------
+insert into public.member_tokens (token, user_id, expires_at) values
+  ('oldtoken00000000000000000000000a', '00000000-0000-0000-0000-0000000000d1', now() - interval '2 hours'),
+  ('newtoken00000000000000000000000b', '00000000-0000-0000-0000-0000000000d1', now() + interval '30 seconds');
+do $$ begin
+  perform public.cleanup_member_tokens();
+  if exists (select 1 from public.member_tokens where token = 'oldtoken00000000000000000000000a') then raise exception 'FAIL T27: 期限切れの番号が残っている'; end if;
+  if not exists (select 1 from public.member_tokens where token = 'newtoken00000000000000000000000b') then raise exception 'FAIL T27: 有効な番号まで消えた'; end if;
+  if has_function_privilege('authenticated', 'public.cleanup_member_tokens()', 'execute') then raise exception 'FAIL T27: 会員が片付けの関数を呼べる'; end if;
+  raise notice 'PASS T27 期限切れの会員証番号だけを片付ける（画面からは呼べない）';
+end $$;
+
 \echo 'ALL TESTS PASSED'

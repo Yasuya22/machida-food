@@ -7,6 +7,7 @@ import { Icon } from "@/components/ui/Icon";
 import { getSession } from "@/lib/auth";
 import { loadMember } from "@/lib/member/queries";
 import { characterImage } from "@/lib/member/rank";
+import { publicImageUrl } from "@/lib/images";
 import { equip, rename } from "./actions";
 
 export const metadata: Metadata = { title: "マイページ" };
@@ -44,7 +45,7 @@ export default async function MyPage({ searchParams }: { searchParams: Promise<{
   ]);
 
   const { profile, rank, next, equipped } = member;
-  const img = characterImage(rank, equipped.outfit);
+  const img = publicImageUrl(characterImage(rank, equipped.outfit));
   const frameColor = equipped.frame?.color ?? "var(--c-accent-bright)";
   const progress = next && rank?.min_points != null && next.rank.min_points != null
     ? Math.min(100, Math.round(((member.earned - rank.min_points) / (next.rank.min_points - rank.min_points)) * 100))
@@ -61,7 +62,7 @@ export default async function MyPage({ searchParams }: { searchParams: Promise<{
           <div className="mt-3 flex flex-col items-center">
             <div className="relative flex h-72 w-full items-end justify-center rounded-3xl border-2 bg-on-brand/5" style={{ borderColor: frameColor }}>
               {img ? (
-                <Image src={img} alt={`${rank?.name ?? ""}ランクのキャラクター（${rank?.animal ?? ""}）`} width={280} height={340} className="h-[17.5rem] w-auto object-contain" priority />
+                <Image src={img} alt={`${rank?.name ?? ""}ランクのキャラクター（${rank?.animal ?? ""}）`} width={280} height={340} className="h-[17.5rem] w-auto object-contain" priority unoptimized={img.startsWith("http")} />
               ) : null}
               {equipped.title ? (
                 <span className="absolute left-3 top-3 rounded-full bg-accent-bright px-3 py-1 text-xs font-bold text-brand">{equipped.title.name}</span>

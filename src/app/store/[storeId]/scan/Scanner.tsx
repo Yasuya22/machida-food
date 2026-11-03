@@ -90,7 +90,7 @@ export function Scanner({ storeId, coupons }: { storeId: string; coupons: Coupon
           <label key={c.id} className="flex items-center gap-2 py-1.5 text-sm">
             <input type="radio" name="mode" value={c.id} checked={mode === c.id} onChange={() => setMode(c.id)} />
             クーポン：{c.title}
-            {c.kind === "welcome" ? <span className="text-[10px] text-muted">（初回登録特典）</span> : null}
+            {c.kind === "welcome" ? <span className="text-[10px] text-muted">（初回登録特典）</span> : c.kind === "exchange" ? <span className="text-[10px] text-muted">（ポイント交換）</span> : null}
           </label>
         ))}
       </fieldset>

@@ -3,6 +3,7 @@ import Link from "next/link";
 import { Flash, buttonClass, cardClass, inputClass, subButtonClass } from "@/components/ui/Flash";
 import { requireAdmin } from "@/lib/admin";
 import * as A from "./actions";
+import { ImageUpload } from "@/components/ui/ImageUpload";
 
 export const metadata: Metadata = { title: "運営管理" };
 export const dynamic = "force-dynamic";
@@ -20,7 +21,7 @@ export default async function AdminPage({ searchParams }: { searchParams: Promis
     db.from("areas").select("id,name").order("sort").returns<{ id: string; name: string }[]>(),
     db.from("app_settings").select("key,value,note").order("key").returns<{ key: string; value: unknown; note: string | null }[]>(),
     db.from("ranks").select("id,name,animal,min_points,invite_only,point_rate,image_path,sort").order("sort").returns<{ id: string; name: string; animal: string; min_points: number | null; invite_only: boolean; point_rate: number; image_path: string | null; sort: number }[]>(),
-    db.from("cosmetics").select("id,kind,name,color,unlock_rank_id,is_active,sort").order("kind").order("sort").returns<{ id: string; kind: string; name: string; color: string | null; unlock_rank_id: string | null; is_active: boolean; sort: number }[]>(),
+    db.from("cosmetics").select("id,kind,name,color,image_path,unlock_rank_id,is_active,sort").order("kind").order("sort").returns<{ id: string; kind: string; name: string; color: string | null; image_path: string | null; unlock_rank_id: string | null; is_active: boolean; sort: number }[]>(),
   ]);
 
   // 担当者のニックネーム・会員番号（運営は会員情報を読める）
@@ -167,7 +168,19 @@ export default async function AdminPage({ searchParams }: { searchParams: Promis
             <label className="col-span-2 space-y-1">衣装の画像パス（{"{rank}"} がランク番号に置き換わる）<input name="image_path" className={inputClass} /></label>
             <button className={`${buttonClass} col-span-2`}>追加</button>
           </form>
-          <p className="text-[11px] text-muted">着せ替えはお金で販売せず、くじ引き（ガチャ）にもしません。画像のアップロード機能は今後追加します。</p>
+          <details className={cardClass}>
+            <summary className="cursor-pointer text-sm font-bold">衣装の画像を登録する</summary>
+            <div className="mt-3 space-y-4">
+              {(cosmetics.data ?? []).filter((c) => c.kind === "outfit").map((c) => (
+                <div key={c.id} className="space-y-1">
+                  <p className="text-sm font-bold">{c.name}</p>
+                  <ImageUpload folder="cosmetics" action={A.saveCosmeticImage} fields={{ id: c.id }} current={c.image_path?.includes("{rank}") ? null : c.image_path} maxSize={800} label="画像を選んで登録（背景なしのPNG推奨）" />
+                </div>
+              ))}
+              <p className="text-[11px] text-muted">ランクごとに絵を変える衣装（コック衣装など）は、画像のパスに {"{rank}"} を含めて指定します。</p>
+            </div>
+          </details>
+          <p className="text-[11px] text-muted">着せ替えはお金で販売せず、くじ引き（ガチャ）にもしません。</p>
         </section>
       </div>
     </main>

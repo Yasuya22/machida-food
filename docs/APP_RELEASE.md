@@ -86,7 +86,7 @@ Apple は「Webサイトを包んだだけのアプリ」を審査で断るこ�
 | ストア掲載文・スクリーンショット | 掲載文の下書き済（`docs/STORE_LISTING.md`）、スクリーンショットは公開後に撮影 |
 | 店舗PIN（予備の来店認証） | 済（毎日変わる・スタッフだけ表示・5回で当日停止） |
 
-### 退会の関数を開発用DBに反映する方法
+### 退会の関数・番号の自動片付けを開発用DBに反映する方法
 
 Supabase の接続では、削除を含む命令に本人の確認が必要なため、次のファイルを SQL Editor に貼り付けて実行する（1回だけ）：
-`supabase/migrations/20261103020000_delete_my_account.sql`
+`supabase/dev/paste_in_sql_editor.sql`

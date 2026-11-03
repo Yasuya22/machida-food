@@ -155,3 +155,11 @@ insert into public.cosmetics (kind, name, color, unlock_rank_id, grant_on_signup
 -- キャラクター画像（public/characters/ に置いたもの。{rank} は表示中のランクの sort に置き換わる）
 update public.ranks set image_path = '/characters/rank-' || sort || '.webp';
 update public.cosmetics set image_path = '/characters/chef-{rank}.webp' where kind = 'outfit' and name = 'コック衣装';
+
+-- ポイント交換品（店舗の販促として各店が提供。交換するとその店のクーポンが配られる）
+insert into public.coupons (id, store_id, title, conditions, kind) values
+  ('c0000000-0000-0000-0000-000000000104', '11111111-1111-1111-1111-000000000001', '【交換】上ハラミ1皿', 'ポイント交換で受け取った方のみ・1回限り', 'exchange'),
+  ('c0000000-0000-0000-0000-000000000404', '11111111-1111-1111-1111-000000000004', '【交換】季節のタルト1つ', 'ポイント交換で受け取った方のみ・1回限り', 'exchange');
+insert into public.exchange_items (store_id, coupon_id, title, description, points_cost, stock, sort) values
+  ('11111111-1111-1111-1111-000000000001', 'c0000000-0000-0000-0000-000000000104', '上ハラミ1皿', '炭火焼肉 まちだ苑で使えます', 800, 30, 1),
+  ('11111111-1111-1111-1111-000000000004', 'c0000000-0000-0000-0000-000000000404', '季節のタルト1つ', 'CAFE ivory leaf で使えます', 400, null, 2);

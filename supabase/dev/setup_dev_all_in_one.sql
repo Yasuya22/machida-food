@@ -1067,6 +1067,164 @@ grant execute on function public.rotate_store_pin(uuid)                    to au
 grant execute on function public.redeem_visit_by_pin(uuid, text)           to authenticated;
 
 -- =====================================================================
+-- 町田ポイントの交換
+--
+--   * 交換品は「店舗の販促」として、その店のオーナー（または運営）が登録する
+--     → 交換すると、その店のクーポン（kind = 'exchange'）がお客様に配られる
+--     → 店舗間の精算は発生しない（CLAUDE.md：町田ポイントは換金・値引き不可、購入不可）
+--   * ポイントは減るが、ランクは累計獲得ポイントで決まるので下がらない
+--   * 残高不足・同じ交換品の2回目・在庫切れはDB側で止める
+--   * 同じ人の交換は1件ずつ順番に処理する（同時に押されても残高を二重に使えない）
+-- =====================================================================
+
+create table public.exchange_items (
+  id          uuid primary key default gen_random_uuid(),
+  store_id    uuid not null references public.stores (id) on delete cascade,
+  coupon_id   uuid not null unique references public.coupons (id) on delete cascade,
+  title       text not null,
+  description text,
+  points_cost int not null check (points_cost between 1 and 100000),
+  stock       int check (stock >= 0),
+  is_active   boolean not null default true,
+  sort        int not null default 0,
+  created_at  timestamptz not null default now()
+);
+create index exchange_items_store_idx on public.exchange_items (store_id, is_active);
+alter table public.exchange_items enable row level security;
+
+-- 交換品のクーポンは同じ店の「ポイント交換用」クーポンに限る
+create function public.check_exchange_item() returns trigger
+  language plpgsql security definer set search_path = public
+  as $$
+begin
+  if not exists (select 1 from coupons where id = new.coupon_id and store_id = new.store_id and kind = 'exchange') then
+    raise exception 'exchange_coupon_mismatch' using errcode = '22023';
+  end if;
+  return new;
+end $$;
+create trigger exchange_items_check before insert or update on public.exchange_items
+  for each row execute function public.check_exchange_item();
+
+create policy exchange_items_read on public.exchange_items for select
+  using (store_visible(store_id) and (is_active or is_store_member(store_id) or is_admin()));
+create policy exchange_items_write on public.exchange_items for all
+  using (is_store_owner(store_id) or is_admin()) with check (is_store_owner(store_id) or is_admin());
+
+create function public.exchange_points(p_item uuid) returns jsonb
+  language plpgsql security definer set search_path = public
+  as $$
+declare
+  v_user uuid := auth.uid();
+  it exchange_items%rowtype;
+  c coupons%rowtype;
+  v_balance int;
+begin
+  if v_user is null then raise exception 'not_signed_in' using errcode = '42501'; end if;
+  if not exists (select 1 from profiles where user_id = v_user) then
+    raise exception 'not_registered' using errcode = '42501';
+  end if;
+
+  -- 同じ人の交換を順番に処理する
+  perform pg_advisory_xact_lock(hashtextextended('exchange:' || v_user::text, 0));
+
+  select * into it from exchange_items where id = p_item for update;
+  if not found or not it.is_active then raise exception 'exchange_not_available' using errcode = '22023'; end if;
+  select * into c from coupons where id = it.coupon_id;
+  if not c.is_active or now() < c.starts_at or (c.ends_at is not null and now() >= c.ends_at)
+     or not exists (select 1 from stores where id = it.store_id and status = 'approved') then
+    raise exception 'exchange_not_available' using errcode = '22023';
+  end if;
+  if it.stock is not null and it.stock <= 0 then raise exception 'exchange_sold_out' using errcode = '22023'; end if;
+  if exists (select 1 from user_coupons where user_id = v_user and coupon_id = it.coupon_id) then
+    raise exception 'exchange_already_done' using errcode = '23505';
+  end if;
+
+  select coalesce(sum(delta), 0) into v_balance from point_ledger where user_id = v_user;
+  if v_balance < it.points_cost then raise exception 'not_enough_points' using errcode = '22023'; end if;
+
+  insert into user_coupons (user_id, coupon_id, source) values (v_user, it.coupon_id, 'exchange');
+  perform add_points(v_user, -it.points_cost, 'ポイント交換：' || it.title, 'exchange', it.id);
+  if it.stock is not null then
+    update exchange_items set stock = stock - 1 where id = it.id;
+  end if;
+  perform write_audit('exchange', it.store_id, v_user, jsonb_build_object('item', it.id, 'points', -it.points_cost));
+
+  return jsonb_build_object('status', 'exchanged', 'title', it.title, 'points', it.points_cost, 'balance', v_balance - it.points_cost);
+end $$;
+
+revoke execute on function public.check_exchange_item() from public, anon, authenticated;
+revoke execute on function public.exchange_points(uuid) from public, anon;
+grant execute on function public.exchange_points(uuid) to authenticated;
+
+-- =====================================================================
+-- 画像のアップロード（店舗の写真・着せ替え衣装）
+--
+--   * 保存場所：Supabase Storage の public-images（だれでも表示できる。登録は権限のある人だけ）
+--       stores/<店舗ID>/...   … その店のオーナー・運営だけが登録できる
+--       cosmetics/...        … 運営だけが登録できる
+--   * 画像は端末側で縮小・圧縮（WebP、最大1200px）してから送る。1ファイル1MBまで
+--   * 差し替えは新しいファイル名で登録して、表示する画像の場所を書き換える（古い画像は消さない）
+-- =====================================================================
+
+alter table public.stores add column cover_path text;
+
+insert into storage.buckets (id, name, public, file_size_limit, allowed_mime_types)
+values ('public-images', 'public-images', true, 1048576, array['image/webp', 'image/jpeg', 'image/png'])
+on conflict (id) do nothing;
+
+-- フォルダ名（店舗ID）から、その店を管理できるかを判定する
+create function public.can_manage_store_folder(p_folder text) returns boolean
+  language plpgsql stable security definer set search_path = public
+  as $$
+begin
+  if p_folder is null or p_folder !~ '^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$' then
+    return false;
+  end if;
+  return is_store_owner(p_folder::uuid) or is_admin();
+end $$;
+
+create policy public_images_insert on storage.objects for insert to authenticated
+  with check (
+    bucket_id = 'public-images' and (
+      ((storage.foldername(name))[1] = 'stores' and public.can_manage_store_folder((storage.foldername(name))[2]))
+      or ((storage.foldername(name))[1] = 'cosmetics' and public.is_admin())
+    )
+  );
+
+revoke execute on function public.can_manage_store_folder(text) from public, anon;
+grant execute on function public.can_manage_store_folder(text) to authenticated;
+
+-- =====================================================================
+-- 期限切れの会員証QR番号の自動片付け
+--
+--   * 会員証の番号は30秒で使えなくなるが、表には残るため、1日1回まとめて片付ける
+--   * 定期実行は Supabase の pg_cron（無料）で、毎日 日本時間 4:15 に実行
+--   * pg_cron がない環境（ローカルのテスト）では、片付けの関数だけを作る
+-- =====================================================================
+
+create function public.cleanup_member_tokens() returns int
+  language plpgsql security definer set search_path = public
+  as $$
+declare
+  n int;
+begin
+  delete from member_tokens where expires_at < now() - interval '1 hour';
+  get diagnostics n = row_count;
+  return n;
+end $$;
+
+revoke execute on function public.cleanup_member_tokens() from public, anon, authenticated;
+
+do $$
+begin
+  if exists (select 1 from pg_available_extensions where name = 'pg_cron') then
+    create extension if not exists pg_cron with schema pg_catalog;
+    -- 毎日 19:15 UTC ＝ 日本時間 4:15
+    perform cron.schedule('cleanup-member-tokens', '15 19 * * *', 'select public.cleanup_member_tokens()');
+  end if;
+end $$;
+
+-- =====================================================================
 -- MACHIDA FOOD  初期データ（デモ用の架空5店舗・ランク・称号など）
 -- 実在の店舗ではありません。本番では管理画面から実際の加盟店を登録します。
 -- =====================================================================
@@ -1223,3 +1381,11 @@ insert into public.cosmetics (kind, name, color, unlock_rank_id, grant_on_signup
 -- キャラクター画像（public/characters/ に置いたもの。{rank} は表示中のランクの sort に置き換わる）
 update public.ranks set image_path = '/characters/rank-' || sort || '.webp';
 update public.cosmetics set image_path = '/characters/chef-{rank}.webp' where kind = 'outfit' and name = 'コック衣装';
+
+-- ポイント交換品（店舗の販促として各店が提供。交換するとその店のクーポンが配られる）
+insert into public.coupons (id, store_id, title, conditions, kind) values
+  ('c0000000-0000-0000-0000-000000000104', '11111111-1111-1111-1111-000000000001', '【交換】上ハラミ1皿', 'ポイント交換で受け取った方のみ・1回限り', 'exchange'),
+  ('c0000000-0000-0000-0000-000000000404', '11111111-1111-1111-1111-000000000004', '【交換】季節のタルト1つ', 'ポイント交換で受け取った方のみ・1回限り', 'exchange');
+insert into public.exchange_items (store_id, coupon_id, title, description, points_cost, stock, sort) values
+  ('11111111-1111-1111-1111-000000000001', 'c0000000-0000-0000-0000-000000000104', '上ハラミ1皿', '炭火焼肉 まちだ苑で使えます', 800, 30, 1),
+  ('11111111-1111-1111-1111-000000000004', 'c0000000-0000-0000-0000-000000000404', '季節のタルト1つ', 'CAFE ivory leaf で使えます', 400, null, 2);

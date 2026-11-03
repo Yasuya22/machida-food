@@ -99,6 +99,15 @@ export async function addCosmetic(form: FormData) {
   back(error, "着せ替えアイテムを追加しました");
 }
 
+/** 衣装などの画像を登録した場所を保存する */
+export async function saveCosmeticImage(form: FormData) {
+  const { db } = await requireAdmin();
+  const image = str(form, "image_path");
+  if (!image.startsWith("cosmetics/")) back(null, "画像の場所が正しくありません");
+  const { error } = await db.from("cosmetics").update({ image_path: image }).eq("id", str(form, "id"));
+  back(error, "画像を保存しました");
+}
+
 export async function toggleCosmetic(form: FormData) {
   const { db } = await requireAdmin();
   const { error } = await db.from("cosmetics").update({ is_active: str(form, "active") === "1" }).eq("id", str(form, "id"));

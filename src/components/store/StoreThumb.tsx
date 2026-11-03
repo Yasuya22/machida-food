@@ -2,6 +2,8 @@
  * 店舗の仮画像（写真の代わり）。ジャンル名から色を自動で決め、店名の1文字目を置く。
  * 架空店舗のため写真は使わない。写真の登録は「5. オーナー・運営画面」で追加する。
  */
+import { publicImageUrl } from "@/lib/images";
+
 const TONES = ["bg-tone-1", "bg-tone-2", "bg-tone-3", "bg-tone-4", "bg-tone-5"] as const;
 
 function toneFor(genre: string): string {
@@ -16,8 +18,13 @@ function initial(name: string): string {
   return [...main.trim()][0] ?? "・";
 }
 
-export function StoreThumb({ name, genre, size = "md" }: { name: string; genre: string; size?: "md" | "lg" }) {
+export function StoreThumb({ name, genre, cover, size = "md" }: { name: string; genre: string; cover?: string | null; size?: "md" | "lg" }) {
   const box = size === "lg" ? "h-40 w-full rounded-none" : "h-16 w-16 shrink-0 rounded-xl";
+  const url = publicImageUrl(cover);
+  if (url) {
+    // eslint-disable-next-line @next/next/no-img-element
+    return <img src={url} alt="" className={`${box} object-cover`} loading="lazy" />;
+  }
   const text = size === "lg" ? "text-6xl" : "text-2xl";
   return (
     <div className={`relative flex items-center justify-center overflow-hidden ${box} ${toneFor(genre)}`} aria-hidden="true">

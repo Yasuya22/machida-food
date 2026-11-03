@@ -38,6 +38,7 @@ type StoreRow = {
   holiday_note: string | null;
   stamp_goal: number;
   stamp_reward: string | null;
+  cover_path: string | null;
   area_id: string | null;
   areas: { name: string } | null;
   store_hours: StoreHours[];
@@ -80,7 +81,7 @@ export type LoadResult<T> = { status: "ok"; data: T } | { status: "unconfigured"
 
 const STORE_SELECT = [
   "id,name,genre,description,address,walk_minutes,price_min,price_max,max_party",
-  "payment_methods,features,parking,holiday_note,stamp_goal,stamp_reward,area_id",
+  "payment_methods,features,parking,holiday_note,stamp_goal,stamp_reward,cover_path,area_id",
   "areas(name)",
   "store_hours(weekday,opens,closes,last_order)",
   "store_closed_days(day)",

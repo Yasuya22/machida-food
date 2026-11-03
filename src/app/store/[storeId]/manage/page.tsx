@@ -4,6 +4,7 @@ import { Flash, buttonClass, cardClass, inputClass, subButtonClass } from "@/com
 import { requireStoreAccess } from "@/lib/store/access";
 import { feeLabel, minutesToLabel, timeToMinutes, tokyoNow, yen, type FeePolicy } from "@/lib/stores/status";
 import * as A from "./actions";
+import { ImageUpload } from "@/components/ui/ImageUpload";
 
 export const metadata: Metadata = { title: "店舗設定" };
 
@@ -29,7 +30,7 @@ function Hidden({ storeId }: { storeId: string }) {
 type Store = {
   name: string; genre: string; area_id: string | null; description: string | null; address: string | null; walk_minutes: number | null;
   price_min: number | null; price_max: number | null; max_party: number; payment_methods: string[]; features: string[];
-  parking: string | null; holiday_note: string | null; stamp_goal: number; stamp_reward: string | null;
+  parking: string | null; holiday_note: string | null; stamp_goal: number; stamp_reward: string | null; cover_path: string | null;
 };
 
 export default async function ManagePage({ params, searchParams }: { params: Promise<{ storeId: string }>; searchParams: Promise<{ msg?: string }> }) {
@@ -40,8 +41,8 @@ export default async function ManagePage({ params, searchParams }: { params: Pro
   const db = session.supabase;
   const today = tokyoNow().ymd;
 
-  const [store, areas, hours, closed, menu, plans, coupons, seats] = await Promise.all([
-    db.from("stores").select("name,genre,area_id,description,address,walk_minutes,price_min,price_max,max_party,payment_methods,features,parking,holiday_note,stamp_goal,stamp_reward").eq("id", storeId).maybeSingle(),
+  const [store, areas, hours, closed, menu, plans, coupons, seats, items] = await Promise.all([
+    db.from("stores").select("name,genre,area_id,description,address,walk_minutes,price_min,price_max,max_party,payment_methods,features,parking,holiday_note,stamp_goal,stamp_reward,cover_path").eq("id", storeId).maybeSingle(),
     db.from("areas").select("id,name").order("sort").returns<{ id: string; name: string }[]>(),
     db.from("store_hours").select("id,weekday,opens,closes,last_order").eq("store_id", storeId).order("weekday").order("opens").returns<{ id: string; weekday: number; opens: string; closes: string; last_order: string | null }[]>(),
     db.from("store_closed_days").select("day,note").eq("store_id", storeId).gte("day", today).order("day").returns<{ day: string; note: string | null }[]>(),
@@ -49,6 +50,7 @@ export default async function ManagePage({ params, searchParams }: { params: Pro
     db.from("budget_plans").select("id,price,dishes,drinks,note,fee,is_active").eq("store_id", storeId).order("sort").returns<{ id: string; price: number; dishes: number; drinks: number; note: string | null; fee: FeePolicy; is_active: boolean }[]>(),
     db.from("coupons").select("id,title,conditions,kind,ends_at,total_limit,is_active").eq("store_id", storeId).order("created_at").returns<{ id: string; title: string; conditions: string | null; kind: string; ends_at: string | null; total_limit: number | null; is_active: boolean }[]>(),
     db.from("seat_types").select("id,name,kind,unit_size,total").eq("store_id", storeId).order("sort").returns<{ id: string; name: string; kind: string; unit_size: number; total: number }[]>(),
+    db.from("exchange_items").select("id,title,points_cost,stock,is_active").eq("store_id", storeId).order("sort").returns<{ id: string; title: string; points_cost: number; stock: number | null; is_active: boolean }[]>(),
   ]);
   const s = store.data as Store | null;
   if (!s) redirect(`/store/${storeId}`);
@@ -58,6 +60,10 @@ export default async function ManagePage({ params, searchParams }: { params: Pro
     <div className="space-y-3">
       <Flash msg={msg} />
       <p className="text-xs text-muted">ここで変えた内容は、すぐにお客様の画面に反映されます。</p>
+
+      <Block title="店舗の写真">
+        <ImageUpload folder={`stores/${storeId}`} action={A.saveCover} fields={{ store_id: storeId }} current={s.cover_path} label="写真を選んで登録" />
+      </Block>
 
       <Block title="店舗情報" open>
         <form action={A.saveStoreInfo} className="space-y-2 text-xs text-muted">
@@ -201,6 +207,26 @@ export default async function ManagePage({ params, searchParams }: { params: Pro
           </div>
           <button className={`${buttonClass} w-full`}>クーポンを追加</button>
           <p className="text-[11px]">表示は実際の内容と一致させ、「最大」「今だけ」など誤解を招く表現は避けてください。初回登録特典は景品の上限の確認が済むまで、金額を確定しないでください。</p>
+        </form>
+      </Block>
+
+      <Block title="ポイント交換品（お店の販促）">
+        <ul className="space-y-1 text-sm">
+          {(items.data ?? []).map((it) => (
+            <li key={it.id} className={`flex items-center justify-between ${it.is_active ? "" : "text-muted line-through"}`}>
+              <span>{it.title}・{it.points_cost}pt{it.stock !== null ? `・残り${it.stock}` : ""}</span>
+              <form action={A.toggleExchangeItem}><Hidden storeId={storeId} /><input type="hidden" name="id" value={it.id} /><input type="hidden" name="active" value={it.is_active ? "0" : "1"} /><button className={subButtonClass}>{it.is_active ? "停止" : "公開"}</button></form>
+            </li>
+          ))}
+        </ul>
+        <form action={A.addExchangeItem} className="grid grid-cols-3 gap-2 text-xs text-muted">
+          <Hidden storeId={storeId} />
+          <label className="col-span-3 space-y-1">品名<input name="title" required placeholder="例：ドリンク1杯" className={inputClass} /></label>
+          <label className="col-span-3 space-y-1">ひとこと<input name="description" placeholder="例：平日のみ" className={inputClass} /></label>
+          <label className="space-y-1">必要pt<input name="points_cost" type="number" min={1} required className={inputClass} /></label>
+          <label className="col-span-2 space-y-1">数量（空欄なら制限なし）<input name="stock" type="number" min={0} className={inputClass} /></label>
+          <button className={`${buttonClass} col-span-3`}>交換品を登録</button>
+          <p className="col-span-3 text-[11px]">交換されると、お客様にこのお店で使えるクーポンが配られます（会員証の読み取りで使用済みにします）。店舗間の精算はありません。</p>
         </form>
       </Block>
 
