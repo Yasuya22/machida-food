@@ -1,0 +1,51 @@
+# 画面の確認用スクリーンショット（幅375px）
+# preview-shots ブランチに push すると、組み立てて主要画面を撮影し、
+# 画像を preview-shots-output ブランチに保存する。外部には公開しない。
+name: Screenshots
+
+on:
+  push:
+    branches: [preview-shots]
+
+permissions:
+  contents: write
+
+jobs:
+  shots:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: npm install --no-audit --no-fund
+      - run: npm run build
+        env:
+          NEXT_TELEMETRY_DISABLED: "1"
+      - name: 撮影
+        run: |
+          npx --yes playwright@1.52.0 install --with-deps chromium
+          npm install --no-save playwright@1.52.0
+          (npx next start -p 3000 &) && npx --yes wait-on@8.0.3 http://localhost:3000
+          mkdir -p shots
+          node -e '
+            const { chromium } = require("playwright");
+            (async () => {
+              const b = await chromium.launch();
+              const p = await b.newPage({ viewport: { width: 375, height: 812 }, deviceScaleFactor: 2 });
+              for (const [n, u] of [["home","/"],["search","/search"],["deals","/deals"],["rewards","/rewards"],["mypage","/mypage"]]) {
+                await p.goto("http://localhost:3000" + u, { waitUntil: "networkidle" });
+                await p.screenshot({ path: "shots/" + n + ".png", fullPage: true });
+              }
+              await b.close();
+            })();
+          '
+      - name: 画像を保存
+        run: |
+          cd shots
+          git init -q -b preview-shots-output
+          git config user.name "github-actions"
+          git config user.email "github-actions@users.noreply.github.com"
+          git add . && git commit -qm "screenshots ${GITHUB_SHA}"
+          git push -f "https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}.git" preview-shots-output
