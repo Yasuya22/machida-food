@@ -33,4 +33,6 @@ npm install
 npm run dev                  # http://localhost:3000
 ```
 
+Mac では `MACHIDA FOODを起動.command` をダブルクリックしても同じことができます（Node.js が未導入なら案内ページが開きます）。
+
 `service_role` キーは使いません。`.env.local` はGitHubに保存されません。
