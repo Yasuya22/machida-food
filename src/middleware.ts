@@ -1,6 +1,7 @@
 import { createServerClient, type CookieOptions } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 import { supabaseEnv } from "@/lib/supabase/env";
+import { requestOrigin } from "@/lib/origin";
 
 /**
  * すべての画面の前に動く処理。
@@ -10,8 +11,7 @@ import { supabaseEnv } from "@/lib/supabase/env";
 export async function middleware(request: NextRequest) {
   const code = request.nextUrl.searchParams.get("code");
   if (code && request.nextUrl.pathname !== "/auth/callback") {
-    const url = request.nextUrl.clone();
-    url.pathname = "/auth/callback";
+    const url = new URL(`/auth/callback${request.nextUrl.search}`, requestOrigin(request));
     return NextResponse.redirect(url);
   }
 
