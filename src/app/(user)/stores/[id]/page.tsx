@@ -10,7 +10,7 @@ import { OpenBadge, SeatPanel } from "@/components/store/StatusBadges";
 import { budgetLabel } from "@/components/store/StoreCard";
 import { CouponCard, SpecialCard, TimeSaleCard } from "@/components/store/DealCards";
 import { loadStoreDetail } from "@/lib/stores/queries";
-import { publicImageUrl } from "@/lib/images";
+import { isDemoImage, publicImageUrl } from "@/lib/images";
 import { feeLabel, minutesToLabel, timeToMinutes, tokyoNow, yen, type StoreHours } from "@/lib/stores/status";
 
 export const dynamic = "force-dynamic";
@@ -91,6 +91,7 @@ export default async function StorePage({ params }: Props) {
                 <figcaption className="absolute bottom-8 right-3 rounded-full bg-black/55 px-2.5 py-0.5 text-xs text-white">
                   {i + 1} / {gallery.length}
                   {p.caption ? `・${p.caption}` : ""}
+                  {isDemoImage(p.path) ? "・写真はイメージです" : ""}
                 </figcaption>
               </figure>
             ))}

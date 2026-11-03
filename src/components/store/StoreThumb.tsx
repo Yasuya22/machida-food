@@ -2,7 +2,7 @@
  * 店舗の画像。写真が登録されていれば写真、なければジャンルの色と店名の1文字目で作った仮の絵。
  * 架空店舗のため写真は使わない（写真は店舗設定から登録できる）。
  */
-import { publicImageUrl } from "@/lib/images";
+import { isDemoImage, publicImageUrl } from "@/lib/images";
 
 const TONES = ["bg-tone-1", "bg-tone-2", "bg-tone-3", "bg-tone-4", "bg-tone-5"] as const;
 
@@ -27,8 +27,15 @@ const BOX = {
 export function StoreThumb({ name, genre, cover, size = "md" }: { name: string; genre: string; cover?: string | null; size?: keyof typeof BOX }) {
   const url = publicImageUrl(cover);
   if (url) {
-    // eslint-disable-next-line @next/next/no-img-element
-    return <img src={url} alt="" className={`${BOX[size]} object-cover`} loading="lazy" />;
+    // デモ用のイメージ写真（public/demo/）には「イメージ」と表示する（実際の料理と誤解されないように）
+    const demo = isDemoImage(cover);
+    return (
+      <div className={`relative overflow-hidden ${BOX[size]}`}>
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img src={url} alt="" className="h-full w-full object-cover" loading="lazy" />
+        {demo ? <span className="absolute bottom-1.5 right-1.5 rounded bg-black/55 px-2 py-0.5 text-xs text-white">イメージ</span> : null}
+      </div>
+    );
   }
   const big = size !== "md";
   return (
