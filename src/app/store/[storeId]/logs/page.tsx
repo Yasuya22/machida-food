@@ -11,6 +11,8 @@ const ACTION_LABEL: Record<string, string> = {
   coupon: "クーポン使用",
   coupon_duplicate: "使用済みクーポンの再利用（拒否）",
   seats: "空席の更新",
+  pin_failed: "店舗PINの入力ミス",
+  pin_rotated: "店舗PINの作り直し",
 };
 
 type Log = { id: number; action: string; detail: Record<string, unknown>; created_at: string; target_user: string | null };
@@ -37,7 +39,7 @@ export default async function LogsPage({ params }: { params: Promise<{ storeId: 
         {[
           ["今日の来店", count("visit")],
           ["クーポン", count("coupon")],
-          ["不正の疑い", count("visit_duplicate") + count("coupon_duplicate")],
+          ["不正の疑い", count("visit_duplicate") + count("coupon_duplicate") + count("pin_failed")],
         ].map(([label, n]) => (
           <div key={label as string} className={cardClass}>
             <p className="text-[11px] text-muted">{label}</p>
@@ -52,7 +54,7 @@ export default async function LogsPage({ params }: { params: Promise<{ storeId: 
           {logs.map((l) => {
             const t = tokyoNow(new Date(l.created_at));
             const pts = typeof l.detail?.points === "number" ? `${l.detail.points}pt` : "";
-            const warn = l.action.endsWith("_duplicate");
+            const warn = l.action.endsWith("_duplicate") || l.action === "pin_failed";
             return (
               <li key={l.id} className="flex items-center justify-between gap-2 px-4 py-2.5 text-sm">
                 <div>

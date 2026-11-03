@@ -171,3 +171,11 @@ export async function deleteSeatType(form: FormData) {
   const { error } = await db.from("seat_types").delete().eq("id", str(form, "id")).eq("store_id", storeId);
   back(path, error, "席の種類を削除しました");
 }
+
+// ---------- 店舗PIN ----------
+
+export async function rotatePin(form: FormData) {
+  const { db, storeId, path } = await ctx(form);
+  const { error } = await db.rpc("rotate_store_pin", { p_store: storeId });
+  back(path, error, "店舗PINを作り直しました（今日のPINも変わりました）");
+}

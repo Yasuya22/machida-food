@@ -204,6 +204,14 @@ export default async function ManagePage({ params, searchParams }: { params: Pro
         </form>
       </Block>
 
+      <Block title="店舗PIN（予備の来店認証）">
+        <p className="text-sm text-muted">PINはお店ごとに毎日自動で変わります。漏れたおそれがあるときは作り直してください。今日のPINは「来店処理」画面で確認できます。</p>
+        <form action={A.rotatePin}>
+          <Hidden storeId={storeId} />
+          <button className={`${buttonClass} w-full`}>店舗PINを作り直す</button>
+        </form>
+      </Block>
+
       <Block title="席の種類（空席表示用）">
         <ul className="space-y-1 text-sm">
           {(seats.data ?? []).map((st) => (

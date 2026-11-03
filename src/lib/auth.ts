@@ -46,6 +46,8 @@ const MESSAGES: Record<string, string> = {
   cosmetic_not_owned: "まだ解放されていないアイテムです。",
   cosmetic_wrong_slot: "装備する場所が違います。",
   only_admin_can_change_status: "掲載状態は運営だけが変更できます。",
+  pin_locked: "店舗PINの入力を何度も間違えたため、本日はPINでの来店処理ができません。お店の端末で会員証を読み取ってもらってください。",
+  not_store_owner: "この操作はお店のオーナーだけができます。",
   staff_account_cannot_self_delete: "店舗・運営のアカウントはこの画面から退会できません。運営にご連絡ください。",
 };
 

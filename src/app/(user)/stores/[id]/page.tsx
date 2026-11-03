@@ -145,6 +145,15 @@ export default async function StorePage({ params }: Props) {
           </ul>
         </Section>
 
+        <section className="rounded-2xl border border-line bg-surface p-4 text-sm shadow-card">
+          <p className="font-bold">来店スタンプ</p>
+          <p className="mt-1 text-muted">お会計のときにマイページの会員証QRを見せてください。お店の端末で読み取れないときは、店舗PINでも押せます。</p>
+          <div className="mt-3 flex gap-2">
+            <Link href="/mypage/card" className="flex-1 rounded-xl bg-brand py-2.5 text-center text-sm font-bold text-on-brand">会員証を表示</Link>
+            <Link href={`/stores/${store.id}/pin`} className="flex-1 rounded-xl border border-brand py-2.5 text-center text-sm font-bold text-brand">店舗PINでスタンプ</Link>
+          </div>
+        </section>
+
         <Section title="お店の情報">
           <dl className="divide-y divide-line rounded-2xl border border-line bg-surface shadow-card">
             <InfoRow label="営業時間">

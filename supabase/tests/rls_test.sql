@@ -317,4 +317,71 @@ do $$ begin
   raise notice 'PASS T23 退会は本人だけ・関連データも削除・記録は残る・店舗アカウントは自分で退会できない';
 end $$;
 
+
+-- ---------- 店舗PIN（予備の来店認証） ----------
+-- まちだ苑のスタッフ（b2）は今日のPINを見られる。翠のオーナー（c1）は、まちだ苑のPINを見られない
+set role authenticated;
+select set_config('request.jwt.claim.sub', '00000000-0000-0000-0000-0000000000b2', false) \g /dev/null
+select set_config('test.pin', public.store_pin_today('11111111-1111-1111-1111-000000000001'), false) \g /dev/null
+do $$ begin
+  if current_setting('test.pin') !~ '^[0-9]{4}$' then raise exception 'FAIL T24: PINが4桁でない'; end if;
+  begin perform public.rotate_store_pin('11111111-1111-1111-1111-000000000001'); raise exception 'FAIL T24: スタッフがPINを作り直せた';
+  exception when insufficient_privilege then null; end;
+end $$;
+select set_config('request.jwt.claim.sub', '00000000-0000-0000-0000-0000000000c1', false) \g /dev/null
+do $$ begin
+  begin perform public.store_pin_today('11111111-1111-1111-1111-000000000001'); raise exception 'FAIL T24: 他店のオーナーがPINを見られた';
+  exception when insufficient_privilege then null; end;
+end $$;
+-- 会員（d2）：PINの元の値は読めない。間違いは記録され、正しいPINでスタンプが付く
+select set_config('request.jwt.claim.sub', '00000000-0000-0000-0000-0000000000d2', false) \g /dev/null
+do $$
+declare r jsonb; wrong text;
+begin
+  begin perform 1 from public.store_pin_secrets; raise exception 'FAIL T24: PINの元の値が読めた';
+  exception when insufficient_privilege then null; end;
+  begin perform public.store_pin_today('11111111-1111-1111-1111-000000000001'); raise exception 'FAIL T24: 会員がPINを見られた';
+  exception when insufficient_privilege then null; end;
+  wrong := lpad(((current_setting('test.pin')::int + 1) % 10000)::text, 4, '0');
+  r := public.redeem_visit_by_pin('11111111-1111-1111-1111-000000000001', wrong);
+  if r->>'status' <> 'wrong_pin' then raise exception 'FAIL T24: 間違ったPINが通った'; end if;
+  r := public.redeem_visit_by_pin('11111111-1111-1111-1111-000000000001', current_setting('test.pin'));
+  if r->>'status' not in ('stamped', 'already_stamped_today') then raise exception 'FAIL T24: 正しいPINでスタンプが付かない: %', r; end if;
+end $$;
+reset role;
+-- 5回間違えると、その日は正しいPINでも止まる（d1・翠）
+set role authenticated;
+select set_config('request.jwt.claim.sub', '00000000-0000-0000-0000-0000000000c1', false) \g /dev/null
+select set_config('test.pin2', public.store_pin_today('11111111-1111-1111-1111-000000000002'), false) \g /dev/null
+select set_config('request.jwt.claim.sub', '00000000-0000-0000-0000-0000000000d1', false) \g /dev/null
+do $$
+declare wrong text := lpad(((current_setting('test.pin2')::int + 1) % 10000)::text, 4, '0');
+begin
+  for i in 1..5 loop perform public.redeem_visit_by_pin('11111111-1111-1111-1111-000000000002', wrong); end loop;
+  begin perform public.redeem_visit_by_pin('11111111-1111-1111-1111-000000000002', current_setting('test.pin2'));
+        raise exception 'FAIL T24: 5回間違えた後もPINで処理できた';
+  exception when insufficient_privilege then if sqlerrm <> 'pin_locked' then raise; end if; end;
+end $$;
+-- オーナー（b1）がPINを作り直すと、今日のPINが変わる
+select set_config('request.jwt.claim.sub', '00000000-0000-0000-0000-0000000000b1', false) \g /dev/null
+do $$
+declare before text := public.store_pin_today('11111111-1111-1111-1111-000000000001'); changed boolean := false;
+begin
+  for i in 1..5 loop
+    perform public.rotate_store_pin('11111111-1111-1111-1111-000000000001');
+    if public.store_pin_today('11111111-1111-1111-1111-000000000001') <> before then changed := true; exit; end if;
+  end loop;
+  if not changed then raise exception 'FAIL T24: 作り直してもPINが変わらない'; end if;
+end $$;
+reset role;
+do $$ begin
+  if has_function_privilege('anon', 'public.redeem_visit_by_pin(uuid,text)', 'execute')
+     or has_function_privilege('authenticated', 'public.pin_for(uuid,date)', 'execute')
+     or has_function_privilege('authenticated', 'public.grant_visit(uuid,uuid,uuid,text)', 'execute') then
+    raise exception 'FAIL T24: 内部用・会員用の関数の権限が正しくない';
+  end if;
+  if not exists (select 1 from public.audit_logs where action = 'pin_failed') then raise exception 'FAIL T24: PINの失敗が記録されていない'; end if;
+  raise notice 'PASS T24 店舗PINはその店の人だけが見られ、毎日変わり、間違いは記録・5回で当日停止、オーナーが作り直せる';
+end $$;
+
 \echo 'ALL TESTS PASSED'
