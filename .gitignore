@@ -5,3 +5,7 @@ node_modules/
 next-env.d.ts.bak
 *.tsbuildinfo
 .DS_Store
+
+# ストア用の署名鍵（絶対にGitHubに保存しない）
+*.keystore
+*.jks

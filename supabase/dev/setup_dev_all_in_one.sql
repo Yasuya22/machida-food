@@ -859,6 +859,37 @@ revoke execute on function public.protect_store_fields() from public, anon, auth
 revoke execute on function public.check_equipped()       from public, anon, authenticated;
 
 -- =====================================================================
+-- アプリ内で退会できるようにする（App Store・Google Play の審査で必須）
+--
+-- delete_my_account()
+--   * ログイン中の会員が自分のアカウントを削除する
+--   * auth.users を削除すると、プロフィール・ポイント・スタンプ・クーポン・
+--     会員証の番号・お気に入りなどは外部キーの on delete cascade で一緒に消える
+--   * 操作の記録（audit_logs）は不正監視のため残す（利用者IDだけで、氏名・連絡先は持たない）
+--   * 店舗のオーナー・スタッフ、運営のアカウントは、記録の整合のためここでは削除しない
+--     （担当を外してから退会する。運営に連絡してもらう）
+-- =====================================================================
+
+create function public.delete_my_account() returns jsonb
+  language plpgsql security definer set search_path = public
+  as $$
+declare
+  v_user uuid := auth.uid();
+begin
+  if v_user is null then raise exception 'not_signed_in' using errcode = '42501'; end if;
+  if exists (select 1 from store_members where user_id = v_user) or exists (select 1 from admins where user_id = v_user) then
+    raise exception 'staff_account_cannot_self_delete' using errcode = '42501';
+  end if;
+
+  perform write_audit('account_deleted', null, v_user, '{}');
+  delete from auth.users where id = v_user;
+  return jsonb_build_object('status', 'deleted');
+end $$;
+
+revoke execute on function public.delete_my_account() from public, anon;
+grant execute on function public.delete_my_account() to authenticated;
+
+-- =====================================================================
 -- MACHIDA FOOD  初期データ（デモ用の架空5店舗・ランク・称号など）
 -- 実在の店舗ではありません。本番では管理画面から実際の加盟店を登録します。
 -- =====================================================================
@@ -1011,3 +1042,7 @@ insert into public.cosmetics (kind, name, color, unlock_rank_id, grant_on_signup
   ('frame',  '黒龍の枠',         '#111111', '7a000000-0000-0000-0000-000000000005', false, 5),
   ('outfit', 'いつもの服',       null,      '7a000000-0000-0000-0000-000000000001', false, 1),
   ('outfit', 'コック衣装',       null,      null,                                   true,  2);
+
+-- キャラクター画像（public/characters/ に置いたもの。{rank} は表示中のランクの sort に置き換わる）
+update public.ranks set image_path = '/characters/rank-' || sort || '.webp';
+update public.cosmetics set image_path = '/characters/chef-{rank}.webp' where kind = 'outfit' and name = 'コック衣装';

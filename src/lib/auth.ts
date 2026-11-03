@@ -46,6 +46,7 @@ const MESSAGES: Record<string, string> = {
   cosmetic_not_owned: "まだ解放されていないアイテムです。",
   cosmetic_wrong_slot: "装備する場所が違います。",
   only_admin_can_change_status: "掲載状態は運営だけが変更できます。",
+  staff_account_cannot_self_delete: "店舗・運営のアカウントはこの画面から退会できません。運営にご連絡ください。",
 };
 
 export function errorMessage(err: { message?: string } | null | undefined): string {

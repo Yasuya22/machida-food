@@ -1,0 +1,21 @@
+{
+  "_comment": "Google Play 用（Bubblewrap / Trusted Web Activity）の設定のひな形。host と各URLは本番の公開URLが決まってから入れる。署名鍵はGitHubに保存しない。",
+  "packageId": "jp.ysy.machidafood",
+  "host": "（本番のドメイン 例：machida-food.jp）",
+  "name": "MACHIDA FOOD",
+  "launcherName": "MACHIDA FOOD",
+  "display": "standalone",
+  "orientation": "portrait",
+  "themeColor": "#1f4a36",
+  "navigationColor": "#1f4a36",
+  "backgroundColor": "#f6f2e8",
+  "enableNotifications": false,
+  "startUrl": "/",
+  "iconUrl": "https://（本番のドメイン）/icons/icon-512.png",
+  "maskableIconUrl": "https://（本番のドメイン）/icons/icon-maskable-512.png",
+  "webManifestUrl": "https://（本番のドメイン）/manifest.webmanifest",
+  "fallbackType": "customtabs",
+  "appVersionName": "1.0.0",
+  "appVersionCode": 1,
+  "minSdkVersion": 24
+}

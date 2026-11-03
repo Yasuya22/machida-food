@@ -82,6 +82,7 @@ export default async function MyPage({ searchParams }: { searchParams: Promise<{
           会員証（QRコード）を表示
           <Icon name="arrow" className="h-5 w-5" />
         </Link>
+        <Link href="/install" className="block text-center text-xs text-accent underline">ホーム画面に追加して、アプリとして使う</Link>
 
         <section className="rounded-2xl border border-line bg-surface p-5 shadow-card">
           <div className="flex items-baseline justify-between">
@@ -170,6 +171,7 @@ export default async function MyPage({ searchParams }: { searchParams: Promise<{
           <form action="/auth/signout" method="post">
             <button className="w-full rounded-xl border border-line py-2.5 text-sm text-muted">ログアウト</button>
           </form>
+          <Link href="/mypage/delete" className="block text-center text-xs text-muted underline">退会する</Link>
         </section>
       </div>
     </main>

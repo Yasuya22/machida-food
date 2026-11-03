@@ -286,4 +286,35 @@ begin
   raise notice 'PASS T22 トリガー専用の関数は呼べず、すべての関数の search_path が固定されている';
 end $$;
 
+
+-- ---------- 退会：本人だけが削除でき、関連データも消え、記録は残る ----------
+insert into auth.users (id, email) values ('00000000-0000-0000-0000-0000000000d3', 'user-c@example.test');
+set role authenticated;
+select set_config('request.jwt.claim.sub', '00000000-0000-0000-0000-0000000000d3', false) \g /dev/null
+select public.register_profile('退会テスト', null, false, true) \g /dev/null
+select public.delete_my_account() \g /dev/null
+reset role;
+do $$ begin
+  if exists (select 1 from auth.users where id = '00000000-0000-0000-0000-0000000000d3') then raise exception 'FAIL T23: 退会してもアカウントが残っている'; end if;
+  if exists (select 1 from public.profiles where user_id = '00000000-0000-0000-0000-0000000000d3')
+     or exists (select 1 from public.point_ledger where user_id = '00000000-0000-0000-0000-0000000000d3')
+     or exists (select 1 from public.user_coupons where user_id = '00000000-0000-0000-0000-0000000000d3') then
+    raise exception 'FAIL T23: 退会後も会員のデータが残っている';
+  end if;
+  if not exists (select 1 from public.audit_logs where action = 'account_deleted' and target_user = '00000000-0000-0000-0000-0000000000d3') then
+    raise exception 'FAIL T23: 退会の記録が残っていない';
+  end if;
+end $$;
+set role authenticated;
+select set_config('request.jwt.claim.sub', '00000000-0000-0000-0000-0000000000b2', false) \g /dev/null
+do $$ begin
+  begin perform public.delete_my_account(); raise exception 'FAIL T23: 店舗スタッフが自分で退会できた';
+  exception when insufficient_privilege then if sqlerrm <> 'staff_account_cannot_self_delete' then raise; end if; end;
+end $$;
+reset role;
+do $$ begin
+  if has_function_privilege('anon', 'public.delete_my_account()', 'execute') then raise exception 'FAIL T23: 未ログインで退会の関数を呼べる'; end if;
+  raise notice 'PASS T23 退会は本人だけ・関連データも削除・記録は残る・店舗アカウントは自分で退会できない';
+end $$;
+
 \echo 'ALL TESTS PASSED'

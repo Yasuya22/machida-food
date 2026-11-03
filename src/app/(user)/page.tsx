@@ -8,7 +8,8 @@ import { loadDeals, loadStores } from "@/lib/stores/queries";
 // 空席などは常に最新を出すため、毎回サーバーで組み立てる
 export const dynamic = "force-dynamic";
 
-export default async function HomePage() {
+export default async function HomePage({ searchParams }: { searchParams: Promise<{ deleted?: string }> }) {
+  const { deleted } = await searchParams;
   const brand = BRANDS[currentBrand()];
   const [stores, deals] = await Promise.all([loadStores(), loadDeals()]);
   const availableNow = stores.status === "ok" ? stores.data.filter((s) => s.seats.kind === "available") : [];
@@ -32,6 +33,7 @@ export default async function HomePage() {
       </section>
 
       <div className="mx-auto max-w-md space-y-8 px-4 py-6">
+        {deleted ? <p role="status" className="rounded-xl bg-accent-soft p-3 text-sm text-accent">退会の手続きが完了しました。ご利用ありがとうございました。</p> : null}
         {stores.status !== "ok" ? (
           <LoadError unconfigured={stores.status === "unconfigured"} />
         ) : (
