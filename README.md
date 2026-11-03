@@ -12,6 +12,8 @@
 | `supabase/seed.sql` | デモ用の架空5店舗などの初期データ |
 | `supabase/tests/` | アクセステスト（本番では実行しない） |
 | `scripts/test-db.sh` | ローカルの使い捨てDBでテストを実行 |
+| `src/` | アプリ本体（Next.js）。色は `src/app/globals.css` のトークン、ブランド名は `src/config/brand.ts` |
+| `.github/workflows/` | 自動チェック（型チェック・組み立て・DBテスト）と画面のスクリーンショット撮影 |
 
 ## データベースのテスト
 
@@ -20,3 +22,15 @@ PostgreSQL が入った環境で次を実行すると、使い捨てのDBを作�
 ```bash
 bash scripts/test-db.sh
 ```
+
+## アプリを手元で動かす
+
+Node.js 20.9 以上が必要です。
+
+```bash
+cp .env.example .env.local   # Supabase のURLと公開用キー（Publishable key）を入れる
+npm install
+npm run dev                  # http://localhost:3000
+```
+
+`service_role` キーは使いません。`.env.local` はGitHubに保存されません。

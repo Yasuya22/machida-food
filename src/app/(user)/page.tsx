@@ -29,7 +29,7 @@ export default async function HomePage() {
         <div className="mx-auto max-w-md">
           <p className="text-xs font-medium tracking-[0.3em] text-accent-bright">{brand.name}</p>
           <h1 className="mt-2 font-display text-[26px] font-bold leading-snug">{brand.tagline}</h1>
-          <p className="mt-2 text-sm text-on-brand-soft">町田駅周辺の空席・クーポン・スタンプを、ひとつのアプリで。</p>
+          <p className="mt-2 text-sm text-on-brand-soft">空席・クーポン・スタンプを、ひとつのアプリで。</p>
           <div className="mt-5 h-px w-12 bg-accent-bright" />
         </div>
       </section>
