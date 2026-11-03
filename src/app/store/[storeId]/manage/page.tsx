@@ -114,7 +114,7 @@ export default async function ManagePage({ params, searchParams }: { params: Pro
           <label className="space-y-1">閉店<input name="closes" type="time" required className={inputClass} /></label>
           <label className="space-y-1">L.O.<input name="last_order" type="time" className={inputClass} /></label>
           <button className={`${buttonClass} col-span-4`}>営業時間を追加</button>
-          <p className="col-span-4 text-[11px]">昼・夜の2部制は、同じ曜日に2行登録します。行がない曜日は定休日になります。24時閉店は「23:59」で登録してください。</p>
+          <p className="col-span-4 text-xs">昼・夜の2部制は、同じ曜日に2行登録します。行がない曜日は定休日になります。24時閉店は「23:59」で登録してください。</p>
         </form>
         <div className="border-t border-line pt-3">
           <ul className="space-y-1 text-sm">
@@ -182,9 +182,9 @@ export default async function ManagePage({ params, searchParams }: { params: Pro
           {(coupons.data ?? []).map((c) => (
             <li key={c.id} className={`flex items-center justify-between gap-2 ${c.is_active ? "" : "text-muted"}`}>
               <span>
-                <span className="mr-1 rounded bg-accent-soft px-1.5 text-[10px] text-accent">{KIND_LABEL[c.kind] ?? c.kind}</span>
+                <span className="mr-1 rounded bg-accent-soft px-1.5 text-xs text-accent">{KIND_LABEL[c.kind] ?? c.kind}</span>
                 {c.title}
-                <span className="block text-[11px] text-muted">{c.conditions ?? ""}{c.ends_at ? `・${tokyoNow(new Date(c.ends_at)).ymd}まで` : ""}{c.total_limit ? `・先着${c.total_limit}枚` : ""}</span>
+                <span className="block text-xs text-muted">{c.conditions ?? ""}{c.ends_at ? `・${tokyoNow(new Date(c.ends_at)).ymd}まで` : ""}{c.total_limit ? `・先着${c.total_limit}枚` : ""}</span>
               </span>
               <form action={A.toggleCoupon}><Hidden storeId={storeId} /><input type="hidden" name="id" value={c.id} /><input type="hidden" name="active" value={c.is_active ? "0" : "1"} /><button className={subButtonClass}>{c.is_active ? "停止" : "公開"}</button></form>
             </li>
@@ -206,7 +206,7 @@ export default async function ManagePage({ params, searchParams }: { params: Pro
             <label className="space-y-1">先着枚数（任意）<input name="total_limit" type="number" min={1} className={inputClass} /></label>
           </div>
           <button className={`${buttonClass} w-full`}>クーポンを追加</button>
-          <p className="text-[11px]">表示は実際の内容と一致させ、「最大」「今だけ」など誤解を招く表現は避けてください。初回登録特典は景品の上限の確認が済むまで、金額を確定しないでください。</p>
+          <p className="text-xs">表示は実際の内容と一致させ、「最大」「今だけ」など誤解を招く表現は避けてください。初回登録特典は景品の上限の確認が済むまで、金額を確定しないでください。</p>
         </form>
       </Block>
 
@@ -226,7 +226,7 @@ export default async function ManagePage({ params, searchParams }: { params: Pro
           <label className="space-y-1">必要pt<input name="points_cost" type="number" min={1} required className={inputClass} /></label>
           <label className="col-span-2 space-y-1">数量（空欄なら制限なし）<input name="stock" type="number" min={0} className={inputClass} /></label>
           <button className={`${buttonClass} col-span-3`}>交換品を登録</button>
-          <p className="col-span-3 text-[11px]">交換されると、お客様にこのお店で使えるクーポンが配られます（会員証の読み取りで使用済みにします）。店舗間の精算はありません。</p>
+          <p className="col-span-3 text-xs">交換されると、お客様にこのお店で使えるクーポンが配られます（会員証の読み取りで使用済みにします）。店舗間の精算はありません。</p>
         </form>
       </Block>
 

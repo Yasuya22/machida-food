@@ -38,7 +38,7 @@ export default async function DealsPage() {
                 {result.data.coupons.map((c) => (
                   <CouponCard key={c.id} coupon={c} showStore />
                 ))}
-                <p className="text-[11px] text-muted">
+                <p className="text-xs text-muted">
                   ご利用の際はお会計前にお店の方へお知らせください。内容・条件はお店の判断で変わることがあります。期限が過ぎたものは自動で表示されなくなります。
                 </p>
               </div>

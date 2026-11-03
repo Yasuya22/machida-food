@@ -130,7 +130,7 @@ export default async function StorePage({ params }: Props) {
             {coupons.map((c) => (
               <CouponCard key={c.id} coupon={c} />
             ))}
-            <p className="text-[11px] text-muted">ご利用の際はお会計前にお店の方へお知らせください。内容・条件はお店の判断で変わることがあります。</p>
+            <p className="text-xs text-muted">ご利用の際はお会計前にお店の方へお知らせください。内容・条件はお店の判断で変わることがあります。</p>
           </div>
         </Section>
 
@@ -189,7 +189,7 @@ export default async function StorePage({ params }: Props) {
               </InfoRow>
             ) : null}
           </dl>
-          <p className="text-[11px] text-muted">※ このお店はデモ用の架空店舗です。</p>
+          <p className="text-xs text-muted">※ このお店はデモ用の架空店舗です。</p>
         </Section>
       </div>
     </main>

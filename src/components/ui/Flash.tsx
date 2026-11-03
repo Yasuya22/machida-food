@@ -8,7 +8,14 @@ export function Flash({ msg }: { msg?: string }) {
   );
 }
 
-export const inputClass = "w-full rounded-xl border border-line bg-surface px-3 py-2.5 text-sm text-ink";
-export const buttonClass = "rounded-xl bg-brand px-4 py-2.5 text-sm font-bold text-on-brand";
-export const subButtonClass = "rounded-xl border border-line px-3 py-2 text-xs text-muted";
-export const cardClass = "rounded-2xl border border-line bg-surface p-4 shadow-card";
+/*
+ * 全画面で共通の部品の見た目（ボタンの高さ・角丸・余白をここで統一する）
+ * - 主ボタン：高さ48px・角丸12px・太字15px（指で押しやすい大きさ）
+ * - 副ボタン：高さ40px以上
+ */
+export const inputClass = "min-h-11 w-full rounded-xl border border-line bg-surface px-3 py-2.5 text-[15px] text-ink";
+export const buttonClass = "inline-flex min-h-12 items-center justify-center gap-2 rounded-xl bg-brand px-5 text-[15px] font-bold text-on-brand active:opacity-90 disabled:opacity-50";
+export const goldButtonClass = "inline-flex min-h-12 items-center justify-center gap-2 rounded-xl bg-accent-bright px-5 text-[15px] font-bold text-brand active:opacity-90";
+export const outlineButtonClass = "inline-flex min-h-12 items-center justify-center gap-2 rounded-xl border-2 border-brand px-5 text-[15px] font-bold text-brand active:bg-brand/5";
+export const subButtonClass = "inline-flex min-h-10 items-center justify-center rounded-lg border border-line bg-surface px-3 text-sm text-muted";
+export const cardClass = "rounded-2xl border border-line/70 bg-surface p-4 shadow-card";

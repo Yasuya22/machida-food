@@ -105,7 +105,7 @@ export default async function MyPage({ searchParams }: { searchParams: Promise<{
               </p>
             </div>
           ) : null}
-          <p className="mt-2 text-[11px] text-muted">町田ポイントは換金・購入はできません。</p>
+          <p className="mt-2 text-xs text-muted">町田ポイントは換金・購入はできません。</p>
         </section>
 
         <section className="space-y-3 rounded-2xl border border-line bg-surface p-5 shadow-card">
@@ -135,7 +135,7 @@ export default async function MyPage({ searchParams }: { searchParams: Promise<{
               </form>
             );
           })}
-          <p className="text-[11px] text-muted">着せ替えアイテムはランクや特典で手に入ります（販売・くじ引きはありません）。</p>
+          <p className="text-xs text-muted">着せ替えアイテムはランクや特典で手に入ります（販売・くじ引きはありません）。</p>
         </section>
 
         {stores.data?.length || admin.data ? (

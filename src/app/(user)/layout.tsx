@@ -4,7 +4,7 @@ import { BottomNav } from "@/components/ui/BottomNav";
 export default function UserLayout({ children }: { children: React.ReactNode }) {
   return (
     <>
-      <div className="pb-[calc(4rem+env(safe-area-inset-bottom)+16px)]">{children}</div>
+      <div className="pb-[calc(5.5rem+env(safe-area-inset-bottom))]">{children}</div>
       <BottomNav />
     </>
   );

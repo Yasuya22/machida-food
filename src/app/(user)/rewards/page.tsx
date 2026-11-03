@@ -91,7 +91,7 @@ export default async function RewardsPage({ searchParams }: { searchParams: Prom
                 <span className="absolute inset-y-0 left-0 w-1.5 bg-accent-bright" aria-hidden="true" />
                 <p className="font-bold">{c.coupons!.title}</p>
                 <p className="text-xs text-muted">{c.coupons!.stores?.name}{c.coupons!.conditions ? `・${c.coupons!.conditions}` : ""}</p>
-                <p className="mt-1 text-[11px] text-muted">お会計のときに会員証を見せてください（お店の方が確定します）。</p>
+                <p className="mt-1 text-xs text-muted">お会計のときに会員証を見せてください（お店の方が確定します）。</p>
               </div>
             ))}
             {(rewards.data ?? []).map((r) => (
@@ -126,7 +126,7 @@ export default async function RewardsPage({ searchParams }: { searchParams: Prom
                   </div>
                 );
               })}
-              <p className="text-[11px] text-muted">交換品は各店舗のご厚意による販促品です。交換してもランク（累計獲得ポイント）は下がりません。町田ポイントは換金・購入はできません。</p>
+              <p className="text-xs text-muted">交換品は各店舗のご厚意による販促品です。交換してもランク（累計獲得ポイント）は下がりません。町田ポイントは換金・購入はできません。</p>
             </div>
           </Section>
         </div>
@@ -137,13 +137,13 @@ export default async function RewardsPage({ searchParams }: { searchParams: Prom
               <li key={l.id} className="flex items-center justify-between px-4 py-2.5 text-sm">
                 <div>
                   <p>{l.reason}</p>
-                  <p className="text-[11px] text-muted">{dateLabel(l.created_at)}</p>
+                  <p className="text-xs text-muted">{dateLabel(l.created_at)}</p>
                 </div>
                 <span className={`font-bold ${l.delta > 0 ? "text-ok" : "text-full"}`}>{l.delta > 0 ? "+" : ""}{l.delta}pt</span>
               </li>
             ))}
           </ul>
-          <p className="text-[11px] text-muted">町田ポイントは換金・購入はできません。</p>
+          <p className="text-xs text-muted">町田ポイントは換金・購入はできません。</p>
         </Section>
       </div>
     </main>

@@ -28,7 +28,7 @@ export function StorePin({ pin }: { pin: string }) {
         >
           {shown ? pin : "＊＊＊＊（押して表示）"}
         </button>
-        <p className="text-[11px] text-muted">PINはお店ごとに毎日変わります。お客様に見せたり、店内に掲示したりしないでください。漏れたときはオーナーが「店舗設定」で作り直せます。</p>
+        <p className="text-xs text-muted">PINはお店ごとに毎日変わります。お客様に見せたり、店内に掲示したりしないでください。漏れたときはオーナーが「店舗設定」で作り直せます。</p>
       </div>
     </details>
   );

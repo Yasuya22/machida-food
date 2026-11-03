@@ -1,6 +1,6 @@
 /**
- * 店舗の仮画像（写真の代わり）。ジャンル名から色を自動で決め、店名の1文字目を置く。
- * 架空店舗のため写真は使わない。写真の登録は「5. オーナー・運営画面」で追加する。
+ * 店舗の画像。写真が登録されていれば写真、なければジャンルの色と店名の1文字目で作った仮の絵。
+ * 架空店舗のため写真は使わない（写真は店舗設定から登録できる）。
  */
 import { publicImageUrl } from "@/lib/images";
 
@@ -18,18 +18,28 @@ function initial(name: string): string {
   return [...main.trim()][0] ?? "・";
 }
 
-export function StoreThumb({ name, genre, cover, size = "md" }: { name: string; genre: string; cover?: string | null; size?: "md" | "lg" }) {
-  const box = size === "lg" ? "h-40 w-full rounded-none" : "h-16 w-16 shrink-0 rounded-xl";
+const BOX = {
+  md: "h-20 w-20 shrink-0 rounded-xl",
+  card: "h-44 w-full",
+  lg: "h-56 w-full",
+} as const;
+
+export function StoreThumb({ name, genre, cover, size = "md" }: { name: string; genre: string; cover?: string | null; size?: keyof typeof BOX }) {
   const url = publicImageUrl(cover);
   if (url) {
     // eslint-disable-next-line @next/next/no-img-element
-    return <img src={url} alt="" className={`${box} object-cover`} loading="lazy" />;
+    return <img src={url} alt="" className={`${BOX[size]} object-cover`} loading="lazy" />;
   }
-  const text = size === "lg" ? "text-6xl" : "text-2xl";
+  const big = size !== "md";
   return (
-    <div className={`relative flex items-center justify-center overflow-hidden ${box} ${toneFor(genre)}`} aria-hidden="true">
-      <span className="absolute inset-1.5 rounded-[inherit] border border-accent-bright/40" />
-      <span className={`font-display font-bold text-on-brand ${text}`}>{initial(name)}</span>
+    <div className={`relative flex items-center justify-center overflow-hidden ${toneFor(genre)} ${BOX[size]}`} aria-hidden="true">
+      {/* 濃淡・細い金の線と円で、写真が入るまでも上品に見せる */}
+      <span className="absolute inset-0 bg-gradient-to-br from-white/10 to-black/35" />
+      <span className="absolute inset-2 rounded-[inherit] border border-accent-bright/35" />
+      {big ? <span className="absolute -right-10 -top-10 h-40 w-40 rounded-full border border-accent-bright/20" /> : null}
+      {big ? <span className="absolute -bottom-14 -left-8 h-44 w-44 rounded-full bg-white/5" /> : null}
+      <span className={`relative font-display font-bold text-on-brand ${big ? "text-6xl" : "text-3xl"}`}>{initial(name)}</span>
+      {big ? <span className="absolute bottom-3 right-4 text-xs tracking-[0.3em] text-accent-bright/90">{genre}</span> : null}
     </div>
   );
 }

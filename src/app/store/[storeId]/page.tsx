@@ -34,7 +34,7 @@ export default async function SeatsPage({ params, searchParams }: { params: Prom
           <OpenBadge state={open} />
         </div>
         <SeatPanel state={view} />
-        <p className="mt-3 text-[11px] text-muted">60分以上更新がないと、お客様の画面では「空席情報なし」になります。営業時間外・L.O.後は「空きあり」と表示されません。</p>
+        <p className="mt-3 text-xs text-muted">60分以上更新がないと、お客様の画面では「空席情報なし」になります。営業時間外・L.O.後は「空きあり」と表示されません。</p>
       </section>
 
       <form action={updateSeats} className={`${cardClass} space-y-3`}>
@@ -70,7 +70,7 @@ export default async function SeatsPage({ params, searchParams }: { params: Prom
           </select>
         </label>
         <button className={`${buttonClass} w-full py-3`}>この内容で更新する</button>
-        <p className="text-[11px] text-muted">変わりがなくても、こまめに「更新する」を押すと最新の情報として表示されます。</p>
+        <p className="text-xs text-muted">変わりがなくても、こまめに「更新する」を押すと最新の情報として表示されます。</p>
       </form>
     </div>
   );

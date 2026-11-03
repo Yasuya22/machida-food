@@ -69,6 +69,8 @@ export type Coupon = {
 };
 
 export type SearchFilters = {
+  /** 店名・ジャンル・エリア・紹介文の文字検索 */
+  q?: string;
   area?: string;
   genre?: string;
   budget?: number;
@@ -120,6 +122,15 @@ export async function loadStores(filters?: SearchFilters): Promise<LoadResult<St
   if (filters?.party) query = query.gte("max_party", filters.party);
   if (filters?.budget) query = query.lte("price_min", filters.budget);
   if (filters?.features.length) query = query.contains("features", filters.features);
+  if (filters?.q) {
+    // 検索の文字から、検索式を壊す記号を取り除く
+    const q = filters.q.replace(/[%,()*\\]/g, " ").trim().slice(0, 40);
+    if (q) {
+      const { data: hitAreas } = await supabase.from("areas").select("id").ilike("name", `%${q}%`).returns<{ id: string }[]>();
+      const areaCond = (hitAreas ?? []).map((a) => `area_id.eq.${a.id}`);
+      query = query.or([`name.ilike.%${q}%`, `genre.ilike.%${q}%`, `description.ilike.%${q}%`, ...areaCond].join(","));
+    }
+  }
 
   const [{ data, error }, stale] = await Promise.all([
     query.order("walk_minutes", { ascending: true, nullsFirst: false }).returns<StoreRow[]>(),

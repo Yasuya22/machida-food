@@ -10,6 +10,7 @@ import {
   minutesToLabel,
   openLabel,
   openState,
+  seatLevel,
   seatState,
   timeToMinutes,
   tokyoNow,
@@ -128,4 +129,17 @@ test("お通し・席料の表示はすべての種類で明記される", () =>
   assert.equal(feeLabel("none"), "お通し・席料なし");
   assert.equal(feeLabel("included"), "お通し・席料込み");
   assert.equal(feeLabel("separate"), "お通し・席料は別途");
+});
+
+test("空席の段階：空きあり・残りわずか・満席・情報なし・営業時間外", () => {
+  const now = at("12:00");
+  const open = openState(ramen, [], tokyoNow(now));
+  const fresh = { wait_minutes: 0, updated_at: at("11:55").toISOString() };
+  // 定員 8 + 6卓×4人 = 32人。空き 2 + 3卓×4 = 14人 → 空きあり
+  assert.equal(seatLevel(seatState(seats.map((s) => ({ ...s, free: s.id === "b" ? 3 : 2 })), fresh, open, now)), "plenty");
+  // 空き 2人だけ → 残りわずか
+  assert.equal(seatLevel(seatState(seats, fresh, open, now)), "few");
+  assert.equal(seatLevel(seatState(fullSeats, fresh, open, now)), "full");
+  assert.equal(seatLevel(seatState(seats, null, open, now)), "unknown");
+  assert.equal(seatLevel(seatState(seats, fresh, openState(ramen, [], tokyoNow(at("16:00"))), at("16:00"))), "closed");
 });

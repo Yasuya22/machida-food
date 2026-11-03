@@ -42,7 +42,7 @@ export default async function LogsPage({ params }: { params: Promise<{ storeId: 
           ["不正の疑い", count("visit_duplicate") + count("coupon_duplicate") + count("pin_failed")],
         ].map(([label, n]) => (
           <div key={label as string} className={cardClass}>
-            <p className="text-[11px] text-muted">{label}</p>
+            <p className="text-xs text-muted">{label}</p>
             <p className="font-display text-2xl font-bold text-brand">{n}</p>
           </div>
         ))}
@@ -59,7 +59,7 @@ export default async function LogsPage({ params }: { params: Promise<{ storeId: 
               <li key={l.id} className="flex items-center justify-between gap-2 px-4 py-2.5 text-sm">
                 <div>
                   <p className={warn ? "font-bold text-full" : ""}>{ACTION_LABEL[l.action] ?? l.action}</p>
-                  <p className="text-[11px] text-muted">
+                  <p className="text-xs text-muted">
                     {t.ymd === today ? "今日" : t.ymd.slice(5).replace("-", "/")} {minutesToLabel(t.minutes)}
                     {l.target_user ? `・お客様 #${l.target_user.slice(0, 4)}` : ""}
                   </p>
@@ -69,7 +69,7 @@ export default async function LogsPage({ params }: { params: Promise<{ storeId: 
             );
           })}
         </ul>
-        <p className="text-[11px] text-muted">お客様の名前・連絡先はお店には表示されません。「#」の記号は同じお客様かどうかの目安です。</p>
+        <p className="text-xs text-muted">お客様の名前・連絡先はお店には表示されません。「#」の記号は同じお客様かどうかの目安です。</p>
       </section>
     </div>
   );

@@ -3,6 +3,7 @@ import Link from "next/link";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { LoadError } from "@/components/ui/Section";
 import { StoreCard } from "@/components/store/StoreCard";
+import { Icon } from "@/components/ui/Icon";
 import { loadSearchOptions, loadStores, type SearchFilters } from "@/lib/stores/queries";
 
 export const metadata: Metadata = { title: "探す" };
@@ -28,6 +29,7 @@ function num(v: string | string[] | undefined): number | undefined {
 
 function parseFilters(p: Params): SearchFilters {
   return {
+    q: first(p.q)?.trim() || undefined,
     area: first(p.area) || undefined,
     genre: first(p.genre) || undefined,
     budget: num(p.budget),
@@ -43,13 +45,18 @@ export default async function SearchPage({ searchParams }: { searchParams: Promi
   const filters = parseFilters(await searchParams);
   const [options, result] = await Promise.all([loadSearchOptions(), loadStores(filters)]);
   const active =
+    !!filters.q ||
     !!filters.area || !!filters.genre || !!filters.budget || !!filters.party || filters.features.length > 0 || filters.availableNow;
 
   return (
     <main>
       <PageHeader title="探す" lead="エリア・ジャンル・予算・こだわり条件から" />
       <div className="mx-auto max-w-md space-y-6 px-4 py-6">
-        <form method="get" className="space-y-4 rounded-2xl border border-line bg-surface p-4 shadow-card">
+        <form method="get" className="space-y-4 rounded-2xl border border-line/70 bg-surface p-4 shadow-card">
+          <label className="flex min-h-12 items-center gap-2 rounded-xl border border-line bg-bg px-3">
+            <Icon name="search" className="h-5 w-5 text-muted" />
+            <input name="q" type="search" defaultValue={filters.q ?? ""} placeholder="店名・ジャンル・エリアで検索" className="w-full bg-transparent text-base outline-none" enterKeyHint="search" />
+          </label>
           <label className="flex items-center gap-3 rounded-xl bg-ok-soft px-3 py-2.5 text-sm font-bold text-ok">
             <input type="checkbox" name="now" value="1" defaultChecked={filters.availableNow} className="h-4 w-4 accent-[var(--c-ok)]" />
             今すぐ入れるお店だけ
@@ -109,7 +116,7 @@ export default async function SearchPage({ searchParams }: { searchParams: Promi
                 {options.features.map((f) => (
                   <label key={f} className="cursor-pointer">
                     <input type="checkbox" name="f" value={f} defaultChecked={filters.features.includes(f)} className="peer sr-only" />
-                    <span className="inline-block rounded-full border border-line px-3 py-1 text-xs text-muted transition-colors peer-checked:border-brand peer-checked:bg-brand peer-checked:text-on-brand peer-focus-visible:outline-2 peer-focus-visible:outline-accent-bright">
+                    <span className="inline-flex min-h-9 items-center rounded-full border border-line px-3.5 text-sm text-muted transition-colors peer-checked:border-brand peer-checked:bg-brand peer-checked:text-on-brand peer-focus-visible:outline-2 peer-focus-visible:outline-accent-bright">
                       {f}
                     </span>
                   </label>
@@ -119,11 +126,11 @@ export default async function SearchPage({ searchParams }: { searchParams: Promi
           ) : null}
 
           <div className="flex gap-2">
-            <button type="submit" className="flex-1 rounded-xl bg-brand py-3 text-sm font-bold text-on-brand">
+            <button type="submit" className="min-h-12 flex-1 rounded-xl bg-brand text-[15px] font-bold text-on-brand">
               この条件で探す
             </button>
             {active ? (
-              <Link href="/search" className="rounded-xl border border-line px-4 py-3 text-sm text-muted">
+              <Link href="/search" className="inline-flex min-h-12 items-center rounded-xl border border-line px-4 text-sm text-muted">
                 クリア
               </Link>
             ) : null}
@@ -154,7 +161,7 @@ export default async function SearchPage({ searchParams }: { searchParams: Promi
           ) : (
             <LoadError unconfigured={result.status === "unconfigured"} />
           )}
-          <p className="text-[11px] text-muted">※ 掲載中の店舗はすべてデモ用の架空店舗です。</p>
+          <p className="text-xs text-muted">※ 掲載中の店舗はすべてデモ用の架空店舗です。</p>
         </section>
       </div>
     </main>

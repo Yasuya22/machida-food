@@ -16,7 +16,7 @@ export function RegisterForm({ next }: { next: string }) {
           {state.coupons > 0 ? <li>初回来店クーポン {state.coupons}枚</li> : null}
           {state.cosmetics > 0 ? <li>着せ替えアイテム {state.cosmetics}点</li> : null}
         </ul>
-        <p className="text-[11px] text-muted">初回登録特典の内容は予告なく変わることがあります。</p>
+        <p className="text-xs text-muted">初回登録特典の内容は予告なく変わることがあります。</p>
         <Link href={state.next} className="block rounded-xl bg-brand py-3 text-sm font-bold text-on-brand">
           はじめる
         </Link>

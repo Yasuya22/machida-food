@@ -36,7 +36,7 @@ export default async function AdminPage({ searchParams }: { searchParams: Promis
       <header className="bg-brand px-4 pb-4 pt-[calc(env(safe-area-inset-top)+14px)] text-on-brand">
         <div className="mx-auto max-w-md">
           <Link href="/mypage" className="text-xs text-on-brand-soft">← マイページ</Link>
-          <p className="mt-2 text-[11px] tracking-[0.25em] text-accent-bright">ADMIN</p>
+          <p className="mt-2 text-xs tracking-[0.25em] text-accent-bright">ADMIN</p>
           <h1 className="font-display text-xl font-bold">運営管理</h1>
         </div>
       </header>
@@ -53,7 +53,7 @@ export default async function AdminPage({ searchParams }: { searchParams: Promis
                   <p className="font-bold">{s.name}</p>
                   <p className="text-xs text-muted">{s.genre}・{s.brand.toUpperCase()}</p>
                 </div>
-                <span className={`rounded-full px-2 py-0.5 text-[11px] font-bold ${s.status === "approved" ? "bg-ok-soft text-ok" : "bg-warn-soft text-warn"}`}>{STATUS_LABEL[s.status]}</span>
+                <span className={`rounded-full px-2 py-0.5 text-xs font-bold ${s.status === "approved" ? "bg-ok-soft text-ok" : "bg-warn-soft text-warn"}`}>{STATUS_LABEL[s.status]}</span>
               </div>
               <div className="flex flex-wrap gap-2">
                 <Link href={`/store/${s.id}/manage`} className={subButtonClass}>店舗設定を開く</Link>
@@ -103,7 +103,7 @@ export default async function AdminPage({ searchParams }: { searchParams: Promis
               <input name="walk_minutes" type="number" min={0} placeholder="徒歩(分)" className={inputClass} />
             </div>
             <button className={`${buttonClass} w-full`}>作成して店舗設定へ</button>
-            <p className="text-[11px] text-muted">実在の店舗は、掲載の許可をいただいてから登録してください。</p>
+            <p className="text-xs text-muted">実在の店舗は、掲載の許可をいただいてから登録してください。</p>
           </form>
         </section>
 
@@ -119,7 +119,7 @@ export default async function AdminPage({ searchParams }: { searchParams: Promis
               </div>
             </form>
           ))}
-          <p className="text-[11px] text-muted">初回登録特典のポイントなど景品にあたるものは、景品表示法の上限の確認が済むまで確定しないでください。</p>
+          <p className="text-xs text-muted">初回登録特典のポイントなど景品にあたるものは、景品表示法の上限の確認が済むまで確定しないでください。</p>
         </section>
 
         <section className="space-y-2">
@@ -143,9 +143,9 @@ export default async function AdminPage({ searchParams }: { searchParams: Promis
             {(cosmetics.data ?? []).map((c) => (
               <li key={c.id} className={`flex items-center justify-between ${c.is_active ? "" : "text-muted line-through"}`}>
                 <span>
-                  <span className="mr-1 text-[10px] text-accent">{KIND_LABEL[c.kind]}</span>
+                  <span className="mr-1 text-xs text-accent">{KIND_LABEL[c.kind]}</span>
                   {c.name}
-                  <span className="ml-1 text-[11px] text-muted">{ranks.data?.find((r) => r.id === c.unlock_rank_id)?.name ?? "特典で配布"}</span>
+                  <span className="ml-1 text-xs text-muted">{ranks.data?.find((r) => r.id === c.unlock_rank_id)?.name ?? "特典で配布"}</span>
                 </span>
                 <form action={A.toggleCosmetic}>
                   <input type="hidden" name="id" value={c.id} />
@@ -177,10 +177,10 @@ export default async function AdminPage({ searchParams }: { searchParams: Promis
                   <ImageUpload folder="cosmetics" action={A.saveCosmeticImage} fields={{ id: c.id }} current={c.image_path?.includes("{rank}") ? null : c.image_path} maxSize={800} label="画像を選んで登録（背景なしのPNG推奨）" />
                 </div>
               ))}
-              <p className="text-[11px] text-muted">ランクごとに絵を変える衣装（コック衣装など）は、画像のパスに {"{rank}"} を含めて指定します。</p>
+              <p className="text-xs text-muted">ランクごとに絵を変える衣装（コック衣装など）は、画像のパスに {"{rank}"} を含めて指定します。</p>
             </div>
           </details>
-          <p className="text-[11px] text-muted">着せ替えはお金で販売せず、くじ引き（ガチャ）にもしません。</p>
+          <p className="text-xs text-muted">着せ替えはお金で販売せず、くじ引き（ガチャ）にもしません。</p>
         </section>
       </div>
     </main>

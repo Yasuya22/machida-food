@@ -29,7 +29,7 @@ export default function InstallPage() {
             </ol>
           </section>
         ))}
-        <p className="text-[11px] text-muted">追加すると、アドレスバーのない全画面で開きます。お店の情報は常に最新を表示するため、ご利用にはインターネット接続が必要です。</p>
+        <p className="text-xs text-muted">追加すると、アドレスバーのない全画面で開きます。お店の情報は常に最新を表示するため、ご利用にはインターネット接続が必要です。</p>
       </div>
     </main>
   );

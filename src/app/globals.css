@@ -9,30 +9,33 @@
 /* MACHIDA FOOD：深緑・アイボリー・ゴールド */
 :root,
 [data-brand="food"] {
-  --c-bg: #f6f2e8;
-  --c-surface: #fffdf7;
+  /* 運営者指定の色（2026-11-03）：メイン #1D4937・アクセント #D5AD51・背景 #F7F3E9・カード #FFFFFF・空席 #E2F1E8・セール #B85B39 */
+  --c-bg: #f7f3e9;
+  --c-surface: #ffffff;
   --c-ink: #1e2b24;
-  --c-muted: #56655b;
-  --c-line: #e3dac5;
-  --c-brand: #1f4a36;
-  --c-on-brand: #f6f2e8;
+  --c-muted: #5a675f;
+  --c-line: #e6dfcd;
+  --c-brand: #1d4937;
+  --c-on-brand: #f7f3e9;
   --c-on-brand-soft: #c9d6cc;
-  --c-accent: #9c7524;
-  --c-accent-bright: #d2ae58;
-  --c-accent-soft: #f2e7c9;
-  --c-ok: #2b7a4b;
-  --c-ok-soft: #e1f0e5;
-  --c-warn: #9a5b00;
-  --c-warn-soft: #f8ead2;
-  --c-full: #a13a29;
-  --c-full-soft: #f6dfd9;
+  --c-accent: #8f6a1c;        /* ゴールドの文字（白地で読める濃さ） */
+  --c-accent-bright: #d5ad51; /* ゴールド（ボタン・線） */
+  --c-accent-soft: #f4ead0;
+  --c-ok: #24704a;
+  --c-ok-soft: #e2f1e8;
+  --c-warn: #8a6100;          /* 残りわずか */
+  --c-warn-soft: #fbf0d3;
+  --c-full: #a3412a;          /* 満席 */
+  --c-full-soft: #f7e3dc;
+  --c-sale: #b85b39;          /* セール・注目（テラコッタ） */
+  --c-sale-soft: #fbece5;
   /* 店舗の仮画像の色（ジャンルごとに自動で割り当て） */
   --c-tone-1: #2f5d47;
   --c-tone-2: #7a4a26;
   --c-tone-3: #4f5b3a;
   --c-tone-4: #8a6a2e;
   --c-tone-5: #3e4e5e;
-  --shadow-card: 0 1px 2px rgb(30 43 36 / 0.06), 0 4px 14px rgb(30 43 36 / 0.06);
+  --shadow-card: 0 1px 2px rgb(30 43 36 / 0.05), 0 6px 18px rgb(30 43 36 / 0.07);
   color-scheme: light;
 }
 
@@ -55,6 +58,8 @@
   --c-warn-soft: #3a2e18;
   --c-full: #ec8a77;
   --c-full-soft: #3d2420;
+  --c-sale: #e08a68;
+  --c-sale-soft: #3a241c;
   --c-tone-1: #2a3350;
   --c-tone-2: #4a2a3a;
   --c-tone-3: #2f3d3a;
@@ -82,6 +87,8 @@
   --color-warn-soft: var(--c-warn-soft);
   --color-full: var(--c-full);
   --color-full-soft: var(--c-full-soft);
+  --color-sale: var(--c-sale);
+  --color-sale-soft: var(--c-sale-soft);
   --color-tone-1: var(--c-tone-1);
   --color-tone-2: var(--c-tone-2);
   --color-tone-3: var(--c-tone-3);
@@ -102,6 +109,7 @@ html {
 
 body {
   font-family: var(--font-sans);
+  font-size: 15px;
   line-height: 1.7;
   font-feature-settings: "palt";
 }

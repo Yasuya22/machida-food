@@ -27,7 +27,7 @@ export default async function ScanPage({ params }: { params: Promise<{ storeId: 
     <div className="space-y-3">
       <Scanner storeId={storeId} coupons={coupons} />
       {typeof pin === "string" ? <StorePin pin={pin} /> : null}
-      <p className="text-[11px] text-muted">
+      <p className="text-xs text-muted">
         会員証QRは30秒で切り替わる使い捨ての番号です。スクリーンショットの使い回しや、同じ日の2回目のスタンプは自動で止まり、記録に残ります。
       </p>
     </div>

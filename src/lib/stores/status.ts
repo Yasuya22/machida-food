@@ -156,6 +156,32 @@ export function seatState(
   return { kind: "full", updatedMinutesAgo: ago, waitMinutes: status.wait_minutes, seats };
 }
 
+/**
+ * 空席の段階（色分け用）
+ *   plenty：空きあり（緑）／few：残りわずか（黄）／full：満席（テラコッタ）
+ *   unknown：情報なし（灰）／closed：営業時間外（灰）
+ * 「残りわずか」＝空いている席が全体の2割以下、または空いている人数が2人以下
+ */
+export type SeatLevel = "plenty" | "few" | "full" | "unknown" | "closed";
+
+export function seatLevel(state: SeatState): SeatLevel {
+  if (state.kind === "not_open") return "closed";
+  if (state.kind === "unknown") return "unknown";
+  if (state.kind === "full") return "full";
+  const cap = (s: SeatType, n: number) => (s.kind === "counter" ? n : n * s.unit_size);
+  const freePeople = state.seats.reduce((a, s) => a + cap(s, s.free), 0);
+  const totalPeople = state.seats.reduce((a, s) => a + cap(s, s.total), 0);
+  return freePeople <= 2 || (totalPeople > 0 && freePeople / totalPeople <= 0.2) ? "few" : "plenty";
+}
+
+export const SEAT_LEVEL_LABEL: Record<SeatLevel, string> = {
+  plenty: "空きあり",
+  few: "残りわずか",
+  full: "満席",
+  unknown: "空席情報なし",
+  closed: "営業時間外",
+};
+
 /** 「3分前に更新」など */
 export function updatedLabel(minutesAgo: number): string {
   if (minutesAgo < 1) return "たった今更新";

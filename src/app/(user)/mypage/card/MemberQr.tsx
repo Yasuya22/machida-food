@@ -64,7 +64,7 @@ export function MemberQr() {
       </p>
       {process.env.NODE_ENV === "development" && token ? (
         // 開発中だけ：1台のパソコンで店舗画面の「番号入力」を試すための表示（本番では出ない）
-        <p className="mt-2 select-all break-all rounded bg-warn-soft px-2 py-1 font-mono text-[10px] text-warn">開発用：{token}</p>
+        <p className="mt-2 select-all break-all rounded bg-warn-soft px-2 py-1 font-mono text-xs text-warn">開発用：{token}</p>
       ) : null}
       {error ? (
         <div className="mt-3 text-center">

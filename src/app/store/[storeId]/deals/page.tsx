@@ -45,7 +45,7 @@ export default async function StoreDealsPage({ params, searchParams }: { params:
           </div>
           <input name="note" placeholder="ひとこと（例：数量限定）" className={inputClass} />
           <button className={`${buttonClass} w-full`}>登録する</button>
-          <p className="text-[11px] text-muted">指定した日だけ表示され、翌日には自動で消えます。</p>
+          <p className="text-xs text-muted">指定した日だけ表示され、翌日には自動で消えます。</p>
         </form>
         <ul className="space-y-2">
           {(specials.data ?? []).map((s) => (
@@ -74,7 +74,7 @@ export default async function StoreDealsPage({ params, searchParams }: { params:
             <label className="space-y-1">終了<input name="ends_at" type="datetime-local" required defaultValue={defaultEnd} className={inputClass} /></label>
           </div>
           <button className={`${buttonClass} w-full`}>登録する</button>
-          <p className="text-[11px] text-muted">終了時刻を過ぎると自動で表示されなくなります。値引きの表示は実際の内容と一致させてください。</p>
+          <p className="text-xs text-muted">終了時刻を過ぎると自動で表示されなくなります。値引きの表示は実際の内容と一致させてください。</p>
         </form>
         <ul className="space-y-2">
           {(sales.data ?? []).map((s) => {

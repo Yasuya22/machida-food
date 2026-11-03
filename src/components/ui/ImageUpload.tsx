@@ -60,7 +60,7 @@ export function ImageUpload({
         <input type="file" accept="image/jpeg,image/png,image/webp" className="sr-only" onChange={(e) => e.target.files?.[0] && onFile(e.target.files[0])} />
       </label>
       {status ? <p className="text-xs text-muted">{status}</p> : null}
-      <p className="text-[11px] text-muted">自動で縮小・圧縮して保存します。実在店舗の写真は掲載の許可をいただいたものだけを使ってください。</p>
+      <p className="text-xs text-muted">自動で縮小・圧縮して保存します。実在店舗の写真は掲載の許可をいただいたものだけを使ってください。</p>
     </form>
   );
 }
