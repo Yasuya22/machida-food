@@ -1,0 +1,95 @@
+@import "tailwindcss";
+
+/* =====================================================================
+   デザイントークン
+   - 画面では色を直接書かず、必ずこのトークン（bg-surface, text-ink など）を使う
+   - <html data-brand="food|night"> で丸ごと差し替える（NIGHT は Phase 4）
+   ===================================================================== */
+
+/* MACHIDA FOOD：深緑・アイボリー・ゴールド */
+:root,
+[data-brand="food"] {
+  --c-bg: #f6f2e8;
+  --c-surface: #fffdf7;
+  --c-ink: #1e2b24;
+  --c-muted: #56655b;
+  --c-line: #e3dac5;
+  --c-brand: #1f4a36;
+  --c-on-brand: #f6f2e8;
+  --c-on-brand-soft: #c9d6cc;
+  --c-accent: #9c7524;
+  --c-accent-bright: #d2ae58;
+  --c-accent-soft: #f2e7c9;
+  --c-ok: #2b7a4b;
+  --c-ok-soft: #e1f0e5;
+  --c-warn: #9a5b00;
+  --c-warn-soft: #f8ead2;
+  --c-full: #a13a29;
+  --c-full-soft: #f6dfd9;
+  --shadow-card: 0 1px 2px rgb(30 43 36 / 0.06), 0 4px 14px rgb(30 43 36 / 0.06);
+  color-scheme: light;
+}
+
+/* MACHIDA NIGHT（Phase 4 で調整）：黒・ダークネイビー・ゴールド */
+[data-brand="night"] {
+  --c-bg: #0b0d14;
+  --c-surface: #131826;
+  --c-ink: #ece8dc;
+  --c-muted: #a3a8b8;
+  --c-line: #262d40;
+  --c-brand: #141b2e;
+  --c-on-brand: #ece8dc;
+  --c-on-brand-soft: #a9b0c4;
+  --c-accent: #d8b25a;
+  --c-accent-bright: #e8c672;
+  --c-accent-soft: #2e2a1c;
+  --c-ok: #74c895;
+  --c-ok-soft: #1a2e24;
+  --c-warn: #e6a84c;
+  --c-warn-soft: #3a2e18;
+  --c-full: #ec8a77;
+  --c-full-soft: #3d2420;
+  --shadow-card: 0 1px 2px rgb(0 0 0 / 0.4), 0 4px 14px rgb(0 0 0 / 0.3);
+  color-scheme: dark;
+}
+
+@theme inline {
+  --color-bg: var(--c-bg);
+  --color-surface: var(--c-surface);
+  --color-ink: var(--c-ink);
+  --color-muted: var(--c-muted);
+  --color-line: var(--c-line);
+  --color-brand: var(--c-brand);
+  --color-on-brand: var(--c-on-brand);
+  --color-on-brand-soft: var(--c-on-brand-soft);
+  --color-accent: var(--c-accent);
+  --color-accent-bright: var(--c-accent-bright);
+  --color-accent-soft: var(--c-accent-soft);
+  --color-ok: var(--c-ok);
+  --color-ok-soft: var(--c-ok-soft);
+  --color-warn: var(--c-warn);
+  --color-warn-soft: var(--c-warn-soft);
+  --color-full: var(--c-full);
+  --color-full-soft: var(--c-full-soft);
+  --shadow-card: var(--shadow-card);
+  --font-display: var(--font-serif-jp), "Hiragino Mincho ProN", "Yu Mincho", serif;
+  --font-sans: var(--font-sans-jp), "Hiragino Sans", "Yu Gothic", system-ui, sans-serif;
+}
+
+html {
+  background: var(--c-bg);
+  color: var(--c-ink);
+  -webkit-text-size-adjust: 100%;
+  -webkit-tap-highlight-color: transparent;
+}
+
+body {
+  font-family: var(--font-sans);
+  line-height: 1.7;
+  font-feature-settings: "palt";
+}
+
+:focus-visible {
+  outline: 2px solid var(--c-accent-bright);
+  outline-offset: 2px;
+}

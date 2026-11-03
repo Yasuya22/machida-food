@@ -1,4 +1,7 @@
 .env*
+!.env.example
 node_modules/
 .next/
+next-env.d.ts.bak
+*.tsbuildinfo
 .DS_Store

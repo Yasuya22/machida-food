@@ -1,0 +1,46 @@
+# 自動チェック：GitHub に保存するたびに実行する
+# - web：型チェックとアプリの組み立て（本番のSupabaseには接続しない）
+# - db ：使い捨てのPostgreSQLでマイグレーションとアクセステスト（本番には接続しない）
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  web:
+    name: 型チェックと組み立て
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: 部品のインストール
+        run: npm install --no-audit --no-fund
+      - name: 型チェック
+        run: npm run typecheck
+      - name: 組み立て
+        run: npm run build
+        env:
+          NEXT_TELEMETRY_DISABLED: "1"
+          NEXT_PUBLIC_BRAND: food
+
+  db:
+    name: データベースのテスト
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - name: アクセステスト
+        run: bash scripts/test-db.sh
