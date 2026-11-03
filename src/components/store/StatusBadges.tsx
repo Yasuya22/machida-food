@@ -20,7 +20,7 @@ const TONE = {
 
 export function Pill({ tone, children, large = false }: { tone: keyof typeof TONE; children: React.ReactNode; large?: boolean }) {
   return (
-    <span className={`inline-flex items-center gap-1 rounded-full font-bold ${large ? "px-3 py-1 text-sm" : "px-2.5 py-0.5 text-xs leading-5"} ${TONE[tone]}`}>
+    <span className={`inline-flex shrink-0 items-center gap-1 whitespace-nowrap rounded-full font-bold ${large ? "px-3 py-1 text-sm" : "px-2.5 py-0.5 text-xs leading-5"} ${TONE[tone]}`}>
       {children}
     </span>
   );
@@ -73,7 +73,7 @@ export function SeatPanel({ state }: { state: SeatState }) {
     return (
       <div className="flex items-center justify-between gap-2">
         <SeatBadge state={state} large hideClosed={false} />
-        <span className="text-sm text-muted">営業時間外のため表示していません</span>
+        <span className="text-sm text-muted">空席は営業中に表示します</span>
       </div>
     );
   }
