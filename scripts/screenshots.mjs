@@ -2,7 +2,7 @@
 // 一時的なSupabase（supabase start）に対して、ログイン→会員登録→店舗・運営の画面まで通す。
 // 使い方：node scripts/screenshots.mjs <出力フォルダ>
 import { chromium } from "playwright";
-import { execSync } from "node:child_process";
+import { execFileSync } from "node:child_process";
 import { mkdirSync } from "node:fs";
 
 const OUT = process.argv[2] ?? "shots";
@@ -13,7 +13,7 @@ const EMAIL = "demo-owner@example.com";
 const STORE = "11111111-1111-1111-1111-000000000001";
 mkdirSync(OUT, { recursive: true });
 
-const sql = (q) => execSync(`psql "${DB}" -v ON_ERROR_STOP=1 -qtAc ${JSON.stringify(q)}`, { encoding: "utf8" }).trim();
+const sql = (q) => execFileSync("psql", [DB, "-v", "ON_ERROR_STOP=1", "-qtAc", q], { encoding: "utf8" }).trim();
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
 // 撮影用のデモの状態（空席を新しく、タイムセール・限定メニューを今日に）
