@@ -151,3 +151,7 @@ insert into public.cosmetics (kind, name, color, unlock_rank_id, grant_on_signup
   ('frame',  '黒龍の枠',         '#111111', '7a000000-0000-0000-0000-000000000005', false, 5),
   ('outfit', 'いつもの服',       null,      '7a000000-0000-0000-0000-000000000001', false, 1),
   ('outfit', 'コック衣装',       null,      null,                                   true,  2);
+
+-- キャラクター画像（public/characters/ に置いたもの。{rank} は表示中のランクの sort に置き換わる）
+update public.ranks set image_path = '/characters/rank-' || sort || '.webp';
+update public.cosmetics set image_path = '/characters/chef-{rank}.webp' where kind = 'outfit' and name = 'コック衣装';
