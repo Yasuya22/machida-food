@@ -78,8 +78,17 @@ await shot("login", null, { full: false });
 await page.fill('input[name="email"]', EMAIL);
 await page.click('button[type="submit"]');
 await page.waitForSelector("text=メールを送りました", { timeout: 20000 });
-await page.goto(await loginLink(), { waitUntil: "networkidle" });
-await page.waitForURL(/\/register/, { timeout: 20000 });
+const link = await loginLink();
+console.log("login link host:", new URL(link).host, "redirect_to:", new URL(link).searchParams.get("redirect_to"));
+await page.goto(link, { waitUntil: "networkidle" });
+try {
+  await page.waitForURL(/\/register/, { timeout: 20000 });
+} catch (e) {
+  console.log("[debug] url after login link:", page.url());
+  console.log("[debug] text:", (await page.innerText("body")).slice(0, 300));
+  await page.screenshot({ path: `${OUT}/error-login.png` });
+  throw e;
+}
 await shot("register", null);
 await page.fill('input[name="nickname"]', "まちだ太郎");
 await page.selectOption('select[name="birth_month"]', "4");
