@@ -42,6 +42,15 @@ insert into public.stores (id, area_id, name, genre, description, address, walk_
    '{クレジットカード,PayPay,現金}', '{禁煙,車椅子対応,アレルギー相談可,記念日向け,貸切OK}',
    '提携駐車場あり（1時間無料）', '日曜日', 'グラスワイン2杯サービス', 'approved');
 
+-- デモ用のイメージ写真（AI生成。アプリに同梱した public/demo/。画面には「イメージ」と表示される）
+update public.stores set cover_path = '/demo/' || v.img
+  from (values ('11111111-1111-1111-1111-000000000001'::uuid, 'yakiniku.webp'),
+               ('11111111-1111-1111-1111-000000000002'::uuid, 'ramen.webp'),
+               ('11111111-1111-1111-1111-000000000003'::uuid, 'izakaya.webp'),
+               ('11111111-1111-1111-1111-000000000004'::uuid, 'cafe.webp'),
+               ('11111111-1111-1111-1111-000000000005'::uuid, 'bistro.webp')) as v(id, img)
+ where stores.id = v.id;
+
 -- 営業時間（行がない曜日は定休日）
 insert into public.store_hours (store_id, weekday, opens, closes, last_order)
 select '11111111-1111-1111-1111-000000000001'::uuid, d::smallint, '17:00'::time, '24:00'::time, '23:00'::time
