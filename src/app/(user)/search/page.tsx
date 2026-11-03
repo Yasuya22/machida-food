@@ -1,14 +1,161 @@
 import type { Metadata } from "next";
-import { ComingSoon, PageHeader } from "@/components/ui/PageHeader";
+import Link from "next/link";
+import { PageHeader } from "@/components/ui/PageHeader";
+import { LoadError } from "@/components/ui/Section";
+import { StoreCard } from "@/components/store/StoreCard";
+import { loadSearchOptions, loadStores, type SearchFilters } from "@/lib/stores/queries";
 
 export const metadata: Metadata = { title: "探す" };
+export const dynamic = "force-dynamic";
 
-export default function Page() {
+/** 予算の上限の選択肢（予算目安の下限がこの金額以下のお店） */
+const BUDGETS = [1000, 2000, 3000, 5000];
+/** 人数の選択肢（最大人数がこの人数以上のお店） */
+const PARTIES = [2, 4, 6, 10, 20];
+
+type Params = Record<string, string | string[] | undefined>;
+
+function first(v: string | string[] | undefined): string | undefined {
+  return Array.isArray(v) ? v[0] : v;
+}
+function list(v: string | string[] | undefined): string[] {
+  return (Array.isArray(v) ? v : v ? [v] : []).filter(Boolean);
+}
+function num(v: string | string[] | undefined): number | undefined {
+  const n = Number(first(v));
+  return Number.isInteger(n) && n > 0 ? n : undefined;
+}
+
+function parseFilters(p: Params): SearchFilters {
+  return {
+    area: first(p.area) || undefined,
+    genre: first(p.genre) || undefined,
+    budget: num(p.budget),
+    party: num(p.party),
+    features: list(p.f),
+    availableNow: first(p.now) === "1",
+  };
+}
+
+const selectClass = "w-full rounded-xl border border-line bg-surface px-3 py-2.5 text-sm";
+
+export default async function SearchPage({ searchParams }: { searchParams: Promise<Params> }) {
+  const filters = parseFilters(await searchParams);
+  const [options, result] = await Promise.all([loadSearchOptions(), loadStores(filters)]);
+  const active =
+    !!filters.area || !!filters.genre || !!filters.budget || !!filters.party || filters.features.length > 0 || filters.availableNow;
+
   return (
     <main>
       <PageHeader title="探す" lead="エリア・ジャンル・予算・こだわり条件から" />
-      <div className="mx-auto max-w-md px-4 py-6">
-        <ComingSoon step="1. 店舗の検索・詳細で作ります">今すぐ入れるお店、予算別プラン、子連れOK・個室などの条件で絞り込み。</ComingSoon>
+      <div className="mx-auto max-w-md space-y-6 px-4 py-6">
+        <form method="get" className="space-y-4 rounded-2xl border border-line bg-surface p-4 shadow-card">
+          <label className="flex items-center gap-3 rounded-xl bg-ok-soft px-3 py-2.5 text-sm font-bold text-ok">
+            <input type="checkbox" name="now" value="1" defaultChecked={filters.availableNow} className="h-4 w-4 accent-[var(--c-ok)]" />
+            今すぐ入れるお店だけ
+          </label>
+
+          <div className="grid grid-cols-2 gap-3">
+            <label className="space-y-1 text-xs text-muted">
+              エリア
+              <select name="area" defaultValue={filters.area ?? ""} className={selectClass}>
+                <option value="">すべて</option>
+                {options.areas.map((a) => (
+                  <option key={a.id} value={a.id}>
+                    {a.name}
+                  </option>
+                ))}
+              </select>
+            </label>
+            <label className="space-y-1 text-xs text-muted">
+              ジャンル
+              <select name="genre" defaultValue={filters.genre ?? ""} className={selectClass}>
+                <option value="">すべて</option>
+                {options.genres.map((g) => (
+                  <option key={g} value={g}>
+                    {g}
+                  </option>
+                ))}
+              </select>
+            </label>
+            <label className="space-y-1 text-xs text-muted">
+              予算（1人）
+              <select name="budget" defaultValue={filters.budget ?? ""} className={selectClass}>
+                <option value="">指定なし</option>
+                {BUDGETS.map((b) => (
+                  <option key={b} value={b}>
+                    {b.toLocaleString("ja-JP")}円まで
+                  </option>
+                ))}
+              </select>
+            </label>
+            <label className="space-y-1 text-xs text-muted">
+              人数
+              <select name="party" defaultValue={filters.party ?? ""} className={selectClass}>
+                <option value="">指定なし</option>
+                {PARTIES.map((n) => (
+                  <option key={n} value={n}>
+                    {n}名以上
+                  </option>
+                ))}
+              </select>
+            </label>
+          </div>
+
+          {options.features.length > 0 ? (
+            <fieldset>
+              <legend className="mb-2 text-xs text-muted">こだわり条件</legend>
+              <div className="flex flex-wrap gap-2">
+                {options.features.map((f) => (
+                  <label key={f} className="cursor-pointer">
+                    <input type="checkbox" name="f" value={f} defaultChecked={filters.features.includes(f)} className="peer sr-only" />
+                    <span className="inline-block rounded-full border border-line px-3 py-1 text-xs text-muted transition-colors peer-checked:border-brand peer-checked:bg-brand peer-checked:text-on-brand peer-focus-visible:outline-2 peer-focus-visible:outline-accent-bright">
+                      {f}
+                    </span>
+                  </label>
+                ))}
+              </div>
+            </fieldset>
+          ) : null}
+
+          <div className="flex gap-2">
+            <button type="submit" className="flex-1 rounded-xl bg-brand py-3 text-sm font-bold text-on-brand">
+              この条件で探す
+            </button>
+            {active ? (
+              <Link href="/search" className="rounded-xl border border-line px-4 py-3 text-sm text-muted">
+                クリア
+              </Link>
+            ) : null}
+          </div>
+        </form>
+
+        <section className="space-y-3" aria-live="polite">
+          {result.status === "ok" ? (
+            <>
+              <p className="text-sm">
+                <span className="font-display text-lg font-bold">{result.data.length}</span>
+                <span className="ml-1 text-muted">件のお店（駅から近い順）</span>
+              </p>
+              {result.data.length === 0 ? (
+                <p className="rounded-2xl border border-line bg-surface p-4 text-sm text-muted">
+                  条件に合うお店がありません。条件を減らしてみてください。
+                </p>
+              ) : (
+                <ul className="space-y-2">
+                  {result.data.map((s) => (
+                    <li key={s.id}>
+                      <StoreCard store={s} />
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </>
+          ) : (
+            <LoadError unconfigured={result.status === "unconfigured"} />
+          )}
+          <p className="text-[11px] text-muted">※ 掲載中の店舗はすべてデモ用の架空店舗です。</p>
+        </section>
       </div>
     </main>
   );

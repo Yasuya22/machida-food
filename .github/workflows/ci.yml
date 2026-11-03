@@ -30,6 +30,8 @@ jobs:
         run: npm install --no-audit --no-fund
       - name: 型チェック
         run: npm run typecheck
+      - name: 判定部品のテスト
+        run: npm test
       - name: 組み立て
         run: npm run build
         env:

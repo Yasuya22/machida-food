@@ -26,6 +26,12 @@
   --c-warn-soft: #f8ead2;
   --c-full: #a13a29;
   --c-full-soft: #f6dfd9;
+  /* 店舗の仮画像の色（ジャンルごとに自動で割り当て） */
+  --c-tone-1: #2f5d47;
+  --c-tone-2: #7a4a26;
+  --c-tone-3: #4f5b3a;
+  --c-tone-4: #8a6a2e;
+  --c-tone-5: #3e4e5e;
   --shadow-card: 0 1px 2px rgb(30 43 36 / 0.06), 0 4px 14px rgb(30 43 36 / 0.06);
   color-scheme: light;
 }
@@ -49,6 +55,11 @@
   --c-warn-soft: #3a2e18;
   --c-full: #ec8a77;
   --c-full-soft: #3d2420;
+  --c-tone-1: #2a3350;
+  --c-tone-2: #4a2a3a;
+  --c-tone-3: #2f3d3a;
+  --c-tone-4: #5a4a2a;
+  --c-tone-5: #33334d;
   --shadow-card: 0 1px 2px rgb(0 0 0 / 0.4), 0 4px 14px rgb(0 0 0 / 0.3);
   color-scheme: dark;
 }
@@ -71,6 +82,11 @@
   --color-warn-soft: var(--c-warn-soft);
   --color-full: var(--c-full);
   --color-full-soft: var(--c-full-soft);
+  --color-tone-1: var(--c-tone-1);
+  --color-tone-2: var(--c-tone-2);
+  --color-tone-3: var(--c-tone-3);
+  --color-tone-4: var(--c-tone-4);
+  --color-tone-5: var(--c-tone-5);
   --shadow-card: var(--shadow-card);
   --font-display: var(--font-serif-jp), "Hiragino Mincho ProN", "Yu Mincho", serif;
   --font-sans: var(--font-sans-jp), "Hiragino Sans", "Yu Gothic", system-ui, sans-serif;

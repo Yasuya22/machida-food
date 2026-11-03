@@ -1,27 +1,17 @@
+import Link from "next/link";
 import { BRANDS, currentBrand } from "@/config/brand";
-import { createSupabaseServer } from "@/lib/supabase/server";
-import { ComingSoon } from "@/components/ui/PageHeader";
+import { LoadError, Section } from "@/components/ui/Section";
+import { StoreCard } from "@/components/store/StoreCard";
+import { TimeSaleCard } from "@/components/store/DealCards";
+import { loadDeals, loadStores } from "@/lib/stores/queries";
 
 // 空席などは常に最新を出すため、毎回サーバーで組み立てる
 export const dynamic = "force-dynamic";
 
-type StoreRow = { id: string; name: string; genre: string; walk_minutes: number | null; areas: { name: string } | null };
-
-async function loadStores(): Promise<{ status: "ok"; stores: StoreRow[] } | { status: "unconfigured" | "error" }> {
-  const supabase = await createSupabaseServer();
-  if (!supabase) return { status: "unconfigured" };
-  const { data, error } = await supabase
-    .from("stores")
-    .select("id, name, genre, walk_minutes, areas(name)")
-    .order("walk_minutes", { ascending: true })
-    .returns<StoreRow[]>();
-  if (error || !data) return { status: "error" };
-  return { status: "ok", stores: data };
-}
-
 export default async function HomePage() {
   const brand = BRANDS[currentBrand()];
-  const result = await loadStores();
+  const [stores, deals] = await Promise.all([loadStores(), loadDeals()]);
+  const availableNow = stores.status === "ok" ? stores.data.filter((s) => s.seats.kind === "available") : [];
 
   return (
     <main>
@@ -30,48 +20,59 @@ export default async function HomePage() {
           <p className="text-xs font-medium tracking-[0.3em] text-accent-bright">{brand.name}</p>
           <h1 className="mt-2 font-display text-[26px] font-bold leading-snug">{brand.tagline}</h1>
           <p className="mt-2 text-sm text-on-brand-soft">空席・クーポン・スタンプを、ひとつのアプリで。</p>
-          <div className="mt-5 h-px w-12 bg-accent-bright" />
+          <div className="mt-5 flex items-center gap-3">
+            <Link href="/search?now=1" className="rounded-full bg-accent-bright px-4 py-2 text-sm font-bold text-brand">
+              今すぐ入れるお店
+            </Link>
+            <Link href="/search" className="text-sm text-on-brand-soft underline-offset-4 hover:underline">
+              条件で探す
+            </Link>
+          </div>
         </div>
       </section>
 
-      <div className="mx-auto max-w-md space-y-6 px-4 py-6">
-        <section aria-labelledby="stores-heading">
-          <div className="mb-3 flex items-baseline justify-between">
-            <h2 id="stores-heading" className="font-display text-lg font-bold">
-              掲載中のお店
-            </h2>
-            {result.status === "ok" ? <span className="text-xs text-muted">{result.stores.length}店</span> : null}
-          </div>
+      <div className="mx-auto max-w-md space-y-8 px-4 py-6">
+        {stores.status !== "ok" ? (
+          <LoadError unconfigured={stores.status === "unconfigured"} />
+        ) : (
+          <>
+            <Section
+              title="今すぐ入れるお店"
+              note={availableNow.length ? `${availableNow.length}店` : undefined}
+              isEmpty={availableNow.length === 0}
+              empty="いま空席情報が出ているお店はありません。営業時間外か、お店の更新を待っています。"
+            >
+              <ul className="space-y-2">
+                {availableNow.map((s) => (
+                  <li key={s.id}>
+                    <StoreCard store={s} />
+                  </li>
+                ))}
+              </ul>
+            </Section>
 
-          {result.status === "ok" ? (
-            <ul className="space-y-2">
-              {result.stores.map((s) => (
-                <li key={s.id} className="flex items-center justify-between rounded-2xl border border-line bg-surface px-4 py-3 shadow-card">
-                  <div>
-                    <p className="font-medium">{s.name}</p>
-                    <p className="text-xs text-muted">
-                      {s.genre}
-                      {s.areas ? `・${s.areas.name}` : ""}
-                      {s.walk_minutes != null ? `・町田駅から徒歩${s.walk_minutes}分` : ""}
-                    </p>
-                  </div>
-                  <span className="rounded-full bg-accent-soft px-2 py-0.5 text-[10px] font-bold text-accent">デモ</span>
-                </li>
-              ))}
-            </ul>
-          ) : (
-            <p className="rounded-2xl border border-line bg-surface p-4 text-sm text-muted">
-              {result.status === "unconfigured"
-                ? "データベースの接続先が未設定です（.env.local を設定してください）。"
-                : "お店の情報を読み込めませんでした。時間をおいて開き直してください。"}
-            </p>
-          )}
-          <p className="mt-2 text-[11px] text-muted">※ 表示中の店舗はすべてデモ用の架空店舗です。</p>
-        </section>
+            {deals.status === "ok" && deals.data.timeSales.length > 0 ? (
+              <Section title="開催中のタイムセール">
+                <div className="space-y-2">
+                  {deals.data.timeSales.slice(0, 3).map((s) => (
+                    <TimeSaleCard key={s.id} sale={s} showStore />
+                  ))}
+                </div>
+              </Section>
+            ) : null}
 
-        <ComingSoon step="1. 店舗の検索・詳細で作ります">
-          エリア・ジャンル・予算で探す、空席（最終更新時刻つき）、今日の限定メニュー、タイムセール。
-        </ComingSoon>
+            <Section title="掲載中のお店" note={`${stores.data.length}店・駅から近い順`}>
+              <ul className="space-y-2">
+                {stores.data.map((s) => (
+                  <li key={s.id}>
+                    <StoreCard store={s} />
+                  </li>
+                ))}
+              </ul>
+              <p className="text-[11px] text-muted">※ 掲載中の店舗はすべてデモ用の架空店舗です。</p>
+            </Section>
+          </>
+        )}
       </div>
     </main>
   );
