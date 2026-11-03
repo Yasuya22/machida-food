@@ -47,3 +47,7 @@ create function storage.foldername(name text) returns text[]
 grant usage on schema storage to anon, authenticated, service_role;
 grant all on storage.objects to anon, authenticated, service_role;
 grant select on storage.buckets to anon, authenticated, service_role;
+
+-- Supabase と同じく、拡張機能は extensions スキーマに入れる（テスト専用）
+create schema extensions;
+grant usage on schema extensions to anon, authenticated, service_role;

@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { requireStoreAccess } from "@/lib/store/access";
-import { StoreTabs } from "./StoreTabs";
+import { StoreTabs, type StoreTab } from "./StoreTabs";
 
 export const dynamic = "force-dynamic";
 
@@ -10,12 +10,12 @@ const ROLE_LABEL = { store_owner: "オーナー", store_staff: "スタッフ", a
 export default async function StoreLayout({ children, params }: { children: React.ReactNode; params: Promise<{ storeId: string }> }) {
   const { storeId } = await params;
   const access = await requireStoreAccess(storeId);
-  const tabs = [
-    { href: `/store/${storeId}/scan`, label: "来店処理" },
-    { href: `/store/${storeId}`, label: "空席" },
-    { href: `/store/${storeId}/deals`, label: "限定・セール" },
-    { href: `/store/${storeId}/logs`, label: "記録" },
-    ...(access.canManage ? [{ href: `/store/${storeId}/manage`, label: "店舗設定" }] : []),
+  const tabs: StoreTab[] = [
+    { href: `/store/${storeId}/scan`, label: "来店処理", icon: "qr", main: true },
+    { href: `/store/${storeId}`, label: "空席更新", icon: "seat", main: true },
+    { href: `/store/${storeId}/deals`, label: "セール登録", icon: "sale", main: true },
+    { href: `/store/${storeId}/logs`, label: "記録", icon: "list" },
+    ...(access.canManage ? [{ href: `/store/${storeId}/manage`, label: "店舗設定", icon: "gear" as const }] : []),
   ];
 
   return (

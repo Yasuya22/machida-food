@@ -213,6 +213,22 @@ export async function saveCover(form: FormData) {
   back(path, error, "店舗の写真を保存しました");
 }
 
+// ---------- 写真ギャラリー ----------
+
+export async function addPhoto(form: FormData) {
+  const { db, storeId, path } = await ctx(form);
+  const image = str(form, "image_path");
+  if (!image.startsWith(`stores/${storeId}/`)) back(path, null, "画像の場所が正しくありません");
+  const { error } = await db.from("store_photos").insert({ store_id: storeId, path: image, caption: optStr(form, "caption"), sort: Date.now() % 1000000 });
+  back(path, error, "写真を追加しました");
+}
+
+export async function togglePhoto(form: FormData) {
+  const { db, storeId, path } = await ctx(form);
+  const { error } = await db.from("store_photos").update({ is_active: str(form, "active") === "1" }).eq("id", str(form, "id")).eq("store_id", storeId);
+  back(path, error, "写真の表示を切り替えました");
+}
+
 // ---------- 店舗PIN ----------
 
 export async function rotatePin(form: FormData) {

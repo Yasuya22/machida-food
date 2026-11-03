@@ -5,6 +5,7 @@ import { requireStoreAccess } from "@/lib/store/access";
 import { feeLabel, minutesToLabel, timeToMinutes, tokyoNow, yen, type FeePolicy } from "@/lib/stores/status";
 import * as A from "./actions";
 import { ImageUpload } from "@/components/ui/ImageUpload";
+import { publicImageUrl } from "@/lib/images";
 
 export const metadata: Metadata = { title: "店舗設定" };
 
@@ -41,7 +42,7 @@ export default async function ManagePage({ params, searchParams }: { params: Pro
   const db = session.supabase;
   const today = tokyoNow().ymd;
 
-  const [store, areas, hours, closed, menu, plans, coupons, seats, items] = await Promise.all([
+  const [store, areas, hours, closed, menu, plans, coupons, seats, items, photos] = await Promise.all([
     db.from("stores").select("name,genre,area_id,description,address,walk_minutes,price_min,price_max,max_party,payment_methods,features,parking,holiday_note,stamp_goal,stamp_reward,cover_path").eq("id", storeId).maybeSingle(),
     db.from("areas").select("id,name").order("sort").returns<{ id: string; name: string }[]>(),
     db.from("store_hours").select("id,weekday,opens,closes,last_order").eq("store_id", storeId).order("weekday").order("opens").returns<{ id: string; weekday: number; opens: string; closes: string; last_order: string | null }[]>(),
@@ -51,6 +52,7 @@ export default async function ManagePage({ params, searchParams }: { params: Pro
     db.from("coupons").select("id,title,conditions,kind,ends_at,total_limit,is_active").eq("store_id", storeId).order("created_at").returns<{ id: string; title: string; conditions: string | null; kind: string; ends_at: string | null; total_limit: number | null; is_active: boolean }[]>(),
     db.from("seat_types").select("id,name,kind,unit_size,total").eq("store_id", storeId).order("sort").returns<{ id: string; name: string; kind: string; unit_size: number; total: number }[]>(),
     db.from("exchange_items").select("id,title,points_cost,stock,is_active").eq("store_id", storeId).order("sort").returns<{ id: string; title: string; points_cost: number; stock: number | null; is_active: boolean }[]>(),
+    db.from("store_photos").select("id,path,caption,is_active").eq("store_id", storeId).order("sort").returns<{ id: string; path: string; caption: string | null; is_active: boolean }[]>(),
   ]);
   const s = store.data as Store | null;
   if (!s) redirect(`/store/${storeId}`);
@@ -61,8 +63,24 @@ export default async function ManagePage({ params, searchParams }: { params: Pro
       <Flash msg={msg} />
       <p className="text-xs text-muted">ここで変えた内容は、すぐにお客様の画面に反映されます。</p>
 
-      <Block title="店舗の写真">
-        <ImageUpload folder={`stores/${storeId}`} action={A.saveCover} fields={{ store_id: storeId }} current={s.cover_path} label="写真を選んで登録" />
+      <Block title="店舗の写真（一覧・トップに表示）">
+        <ImageUpload folder={`stores/${storeId}`} action={A.saveCover} fields={{ store_id: storeId }} current={s.cover_path} label="メインの写真を選んで登録" />
+      </Block>
+
+      <Block title="写真ギャラリー（料理・店内など）">
+        <div className="grid grid-cols-3 gap-2">
+          {(photos.data ?? []).map((p) => (
+            <form key={p.id} action={A.togglePhoto} className={`space-y-1 ${p.is_active ? "" : "opacity-40"}`}>
+              <Hidden storeId={storeId} />
+              <input type="hidden" name="id" value={p.id} />
+              <input type="hidden" name="active" value={p.is_active ? "0" : "1"} />
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src={publicImageUrl(p.path) ?? ""} alt={p.caption ?? ""} className="aspect-square w-full rounded-lg object-cover" />
+              <button className={`${subButtonClass} w-full`}>{p.is_active ? "非表示" : "表示"}</button>
+            </form>
+          ))}
+        </div>
+        <ImageUpload folder={`stores/${storeId}`} action={A.addPhoto} fields={{ store_id: storeId }} label="写真を追加（料理・店内など）" />
       </Block>
 
       <Block title="店舗情報" open>

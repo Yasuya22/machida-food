@@ -42,12 +42,12 @@ export default async function SeatsPage({ params, searchParams }: { params: Prom
         <h2 className="font-bold">いまの空き</h2>
         {(seats.data ?? []).length === 0 ? <p className="text-sm text-muted">席の種類が登録されていません（店舗設定で追加できます）。</p> : null}
         {(seats.data ?? []).map((s) => (
-          <label key={s.id} className="flex items-center justify-between gap-3 text-sm">
+          <label key={s.id} className="flex items-center justify-between gap-3 text-[15px]">
             <span>
               {s.name}
               <span className="ml-1 text-xs text-muted">（全{s.total}{s.kind === "counter" ? "席" : "卓"}）</span>
             </span>
-            <select name={`seat_${s.id}`} defaultValue={s.free} className={`${inputClass} w-24 text-right`}>
+            <select name={`seat_${s.id}`} defaultValue={s.free} className={`${inputClass} w-28 text-right text-base font-bold`}>
               {Array.from({ length: s.total + 1 }, (_, i) => (
                 <option key={i} value={i}>
                   空き {i}
@@ -56,12 +56,12 @@ export default async function SeatsPage({ params, searchParams }: { params: Prom
             </select>
           </label>
         ))}
-        <label className="flex items-center justify-between gap-3 text-sm">
+        <label className="flex items-center justify-between gap-3 text-[15px]">
           <span>
             満席時の待ち時間
             <span className="block text-xs text-muted">空きが1つでもあれば0分になります</span>
           </span>
-          <select name="wait" defaultValue={st?.wait_minutes ?? 0} className={`${inputClass} w-24 text-right`}>
+          <select name="wait" defaultValue={st?.wait_minutes ?? 0} className={`${inputClass} w-28 text-right text-base font-bold`}>
             {WAITS.map((w) => (
               <option key={w} value={w}>
                 {w}分
@@ -69,7 +69,7 @@ export default async function SeatsPage({ params, searchParams }: { params: Prom
             ))}
           </select>
         </label>
-        <button className={`${buttonClass} w-full py-3`}>この内容で更新する</button>
+        <button className={`${buttonClass} w-full`}>この内容で更新する</button>
         <p className="text-xs text-muted">変わりがなくても、こまめに「更新する」を押すと最新の情報として表示されます。</p>
       </form>
     </div>

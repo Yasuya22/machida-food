@@ -28,6 +28,8 @@ type StoreRow = {
   genre: string;
   description: string | null;
   address: string | null;
+  lat: number | null;
+  lng: number | null;
   walk_minutes: number | null;
   price_min: number | null;
   price_max: number | null;
@@ -82,7 +84,7 @@ export type SearchFilters = {
 export type LoadResult<T> = { status: "ok"; data: T } | { status: "unconfigured" } | { status: "error" };
 
 const STORE_SELECT = [
-  "id,name,genre,description,address,walk_minutes,price_min,price_max,max_party",
+  "id,name,genre,description,address,lat,lng,walk_minutes,price_min,price_max,max_party",
   "payment_methods,features,parking,holiday_note,stamp_goal,stamp_reward,cover_path,area_id",
   "areas(name)",
   "store_hours(weekday,opens,closes,last_order)",
@@ -169,7 +171,11 @@ export type StoreDetail = {
   specials: DailySpecial[];
   timeSales: TimeSale[];
   coupons: Coupon[];
+  photos: StorePhoto[];
+  closedDays: string[];
 };
+
+export type StorePhoto = { id: string; path: string; caption: string | null };
 
 export async function loadStoreDetail(id: string): Promise<LoadResult<StoreDetail | null>> {
   if (!UUID.test(id)) return { status: "ok", data: null };
@@ -178,7 +184,7 @@ export async function loadStoreDetail(id: string): Promise<LoadResult<StoreDetai
 
   const now = new Date();
   const today = tokyoNow(now).ymd;
-  const [store, menu, plans, specials, sales, coupons, stale] = await Promise.all([
+  const [store, menu, plans, specials, sales, coupons, stale, photos] = await Promise.all([
     supabase.from("stores").select(STORE_SELECT).eq("id", id).eq("brand", currentBrand()).limit(1).returns<StoreRow[]>(),
     supabase.from("menu_items").select("id,name,price").eq("store_id", id).eq("is_active", true).order("sort").returns<MenuItem[]>(),
     supabase.from("budget_plans").select("id,price,dishes,drinks,note,fee").eq("store_id", id).eq("is_active", true).order("sort").returns<BudgetPlan[]>(),
@@ -186,6 +192,7 @@ export async function loadStoreDetail(id: string): Promise<LoadResult<StoreDetai
     supabase.from("time_sales").select("id,store_id,title,starts_at,ends_at").eq("store_id", id).gt("ends_at", now.toISOString()).order("starts_at").returns<TimeSale[]>(),
     supabase.from("coupons").select("id,store_id,title,conditions,kind,starts_at,ends_at").eq("store_id", id).eq("is_active", true).in("kind", ["normal", "rain"]).returns<Coupon[]>(),
     staleMinutes(supabase),
+    supabase.from("store_photos").select("id,path,caption").eq("store_id", id).eq("is_active", true).order("sort").order("created_at").returns<StorePhoto[]>(),
   ]);
   if (store.error) return { status: "error" };
   const row = store.data?.[0];
@@ -200,6 +207,8 @@ export async function loadStoreDetail(id: string): Promise<LoadResult<StoreDetai
       specials: specials.data ?? [],
       timeSales: (sales.data ?? []).filter((s) => isWithin(s.starts_at, s.ends_at, now)),
       coupons: (coupons.data ?? []).filter((c) => isWithin(c.starts_at, c.ends_at, now)),
+      photos: photos.data ?? [],
+      closedDays: row.store_closed_days.map((d) => d.day).filter((d) => d >= today).sort(),
     },
   };
 }

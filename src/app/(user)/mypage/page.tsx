@@ -87,7 +87,7 @@ export default async function MyPage({ searchParams }: { searchParams: Promise<{
 
         <section className="rounded-2xl border border-line bg-surface p-5 shadow-card">
           <div className="flex items-baseline justify-between">
-            <h2 className="font-display text-lg font-bold">町田ポイント</h2>
+            <h2 className="font-display text-xl font-bold">町田ポイント</h2>
             <Link href="/rewards" className="text-xs text-accent underline">履歴</Link>
           </div>
           <p className="mt-1">
@@ -97,7 +97,7 @@ export default async function MyPage({ searchParams }: { searchParams: Promise<{
           <p className="text-xs text-muted">累計獲得 {member.earned.toLocaleString("ja-JP")}pt（ランクは累計で決まり、交換しても下がりません）</p>
           {next ? (
             <div className="mt-3">
-              <div className="h-2 overflow-hidden rounded-full bg-line">
+              <div className="h-3 overflow-hidden rounded-full bg-line">
                 <div className="h-full rounded-full bg-accent-bright" style={{ width: `${progress}%` }} />
               </div>
               <p className="mt-1 text-xs text-muted">
@@ -108,8 +108,46 @@ export default async function MyPage({ searchParams }: { searchParams: Promise<{
           <p className="mt-2 text-xs text-muted">町田ポイントは換金・購入はできません。</p>
         </section>
 
+        {/* ---------- ランクと特典（いまのランクを強調） ---------- */}
+        <section className="space-y-3">
+          <h2 className="font-display text-xl font-bold">ランクと特典</h2>
+          <ul className="space-y-2">
+            {member.ranks.map((r) => {
+              const current = rank?.id === r.id;
+              const reached = !!rank && r.sort <= rank.sort;
+              const unlocks = member.cosmetics.filter((c) => c.unlock_rank_id === r.id);
+              const pic = publicImageUrl(r.image_path);
+              return (
+                <li key={r.id} className={`flex gap-3 rounded-2xl border p-3 ${current ? "border-accent-bright bg-accent-soft/60 shadow-card" : "border-line/70 bg-surface"} ${reached || current ? "" : "opacity-75"}`}>
+                  <div className={`flex h-16 w-16 shrink-0 items-end justify-center overflow-hidden rounded-xl ${current ? "bg-brand" : "bg-bg"}`}>
+                    {pic ? (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img src={pic} alt="" className={`h-[60px] w-auto object-contain ${reached ? "" : "grayscale"}`} loading="lazy" />
+                    ) : null}
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <div className="flex items-center gap-2">
+                      <p className="text-base font-bold">{r.name}</p>
+                      <span className="text-sm text-muted">{r.animal}</span>
+                      {current ? <span className="rounded-full bg-accent-bright px-2 py-0.5 text-xs font-bold text-brand">いまのランク</span> : reached ? <span className="text-xs font-bold text-ok">達成</span> : null}
+                    </div>
+                    <p className="text-sm text-muted">
+                      {r.invite_only ? "条件を満たした方へのご招待制" : `累計 ${(r.min_points ?? 0).toLocaleString("ja-JP")}pt から`}
+                    </p>
+                    <ul className="mt-1 space-y-0.5 text-sm">
+                      <li>・来店ポイント {Number(r.point_rate).toFixed(1).replace(/\.0$/, "")}倍</li>
+                      {unlocks.length ? <li>・{unlocks.map((c) => c.name).join("・")} が解放</li> : null}
+                    </ul>
+                  </div>
+                </li>
+              );
+            })}
+          </ul>
+          <p className="text-xs text-muted">ランクは累計獲得ポイントで決まり、ポイントを交換しても下がりません。特典の内容は変わることがあります。</p>
+        </section>
+
         <section className="space-y-3 rounded-2xl border border-line bg-surface p-5 shadow-card">
-          <h2 className="font-display text-lg font-bold">着せ替え</h2>
+          <h2 className="font-display text-xl font-bold">着せ替え</h2>
           {(["title", "frame", "outfit"] as const).map((slot) => {
             const items = member.cosmetics.filter((c) => c.kind === slot);
             const current = equipped[slot]?.id ?? "";
@@ -140,7 +178,7 @@ export default async function MyPage({ searchParams }: { searchParams: Promise<{
 
         {stores.data?.length || admin.data ? (
           <section className="space-y-2 rounded-2xl border border-line bg-surface p-5 shadow-card">
-            <h2 className="font-display text-lg font-bold">お店・運営の方</h2>
+            <h2 className="font-display text-xl font-bold">お店・運営の方</h2>
             {(stores.data ?? []).map((m) => (
               <Link key={m.store_id} href={`/store/${m.store_id}`} className="flex items-center justify-between rounded-xl border border-line px-4 py-3 text-sm">
                 {m.stores?.name ?? "店舗"}の管理画面
@@ -157,7 +195,7 @@ export default async function MyPage({ searchParams }: { searchParams: Promise<{
         ) : null}
 
         <section className="space-y-3 rounded-2xl border border-line bg-surface p-5 shadow-card">
-          <h2 className="font-display text-lg font-bold">登録情報</h2>
+          <h2 className="font-display text-xl font-bold">登録情報</h2>
           <form action={rename} className="flex items-end gap-2">
             <label className="flex-1 space-y-1 text-xs text-muted">
               ニックネーム

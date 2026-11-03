@@ -281,6 +281,7 @@ begin
   select string_agg(p.proname, ', ') into t
     from pg_proc p join pg_namespace n on n.oid = p.pronamespace
    where n.nspname = 'public' and p.prokind = 'f'
+     and not exists (select 1 from pg_depend d where d.objid = p.oid and d.deptype = 'e')  -- 拡張機能の関数は対象外
      and not exists (select 1 from unnest(coalesce(p.proconfig, '{}')) c where c like 'search_path=%');
   if t is not null then raise exception 'FAIL T22: search_path が固定されていない関数: %', t; end if;
   raise notice 'PASS T22 トリガー専用の関数は呼べず、すべての関数の search_path が固定されている';
@@ -485,5 +486,35 @@ do $$ begin
   if has_function_privilege('authenticated', 'public.cleanup_member_tokens()', 'execute') then raise exception 'FAIL T27: 会員が片付けの関数を呼べる'; end if;
   raise notice 'PASS T27 期限切れの会員証番号だけを片付ける（画面からは呼べない）';
 end $$;
+
+
+-- ---------- 写真ギャラリー ----------
+set role authenticated;
+select set_config('request.jwt.claim.sub', '00000000-0000-0000-0000-0000000000b1', false) \g /dev/null
+insert into public.store_photos (store_id, path, caption) values
+  ('11111111-1111-1111-1111-000000000001', 'stores/11111111-1111-1111-1111-000000000001/p1.webp', '上タン塩');
+do $$ begin
+  begin insert into public.store_photos (store_id, path) values ('11111111-1111-1111-1111-000000000001', 'stores/11111111-1111-1111-1111-000000000002/x.webp');
+        raise exception 'FAIL T28: 他店のフォルダの画像を自店の写真にできた';
+  exception when check_violation then null; end;
+  begin insert into public.store_photos (store_id, path) values ('11111111-1111-1111-1111-000000000002', 'stores/11111111-1111-1111-1111-000000000002/x.webp');
+        raise exception 'FAIL T28: 他店に写真を登録できた';
+  exception when insufficient_privilege then null; end;
+end $$;
+select set_config('request.jwt.claim.sub', '', false) \g /dev/null
+set role anon;
+do $$ begin
+  if not exists (select 1 from public.store_photos where caption = '上タン塩') then raise exception 'FAIL T28: 掲載中の店舗の写真が見えない'; end if;
+end $$;
+reset role;
+set role authenticated;
+select set_config('request.jwt.claim.sub', '00000000-0000-0000-0000-0000000000b2', false) \g /dev/null
+do $$ begin
+  begin insert into public.store_photos (store_id, path) values ('11111111-1111-1111-1111-000000000001', 'stores/11111111-1111-1111-1111-000000000001/s.webp');
+        raise exception 'FAIL T28: スタッフが写真を登録できた';
+  exception when insufficient_privilege then null; end;
+end $$;
+reset role;
+do $$ begin raise notice 'PASS T28 写真ギャラリー：だれでも見られ、登録はその店のオーナー・運営だけ、他店のフォルダの画像は使えない'; end $$;
 
 \echo 'ALL TESTS PASSED'
