@@ -9,6 +9,7 @@ import { createSupabaseBrowser } from "@/lib/supabase/client";
  */
 export function MemberQr() {
   const [svg, setSvg] = useState<string | null>(null);
+  const [token, setToken] = useState<string>("");
   const [expiresAt, setExpiresAt] = useState<number>(0);
   const [now, setNow] = useState<number>(() => Date.now());
   const [error, setError] = useState<string | null>(null);
@@ -24,6 +25,7 @@ export function MemberQr() {
       if (e || !data) throw e ?? new Error("no data");
       const { token, expires_at } = data as { token: string; expires_at: string };
       setSvg(await QRCode.toString(token, { type: "svg", margin: 1, errorCorrectionLevel: "M", color: { dark: "#1e2b24", light: "#ffffff" } }));
+      setToken(token);
       setExpiresAt(Date.parse(expires_at));
       setError(null);
     } catch {
@@ -60,6 +62,10 @@ export function MemberQr() {
       <p className="mt-2 text-xs text-muted" aria-live="polite">
         {svg ? `あと${left}秒で自動的に切り替わります` : ""}
       </p>
+      {process.env.NODE_ENV === "development" && token ? (
+        // 開発中だけ：1台のパソコンで店舗画面の「番号入力」を試すための表示（本番では出ない）
+        <p className="mt-2 select-all break-all rounded bg-warn-soft px-2 py-1 font-mono text-[10px] text-warn">開発用：{token}</p>
+      ) : null}
       {error ? (
         <div className="mt-3 text-center">
           <p className="text-sm text-full">{error}</p>

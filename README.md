@@ -23,6 +23,16 @@ PostgreSQL が入った環境で次を実行すると、使い捨てのDBを作�
 bash scripts/test-db.sh
 ```
 
+## 画面の一覧
+
+| パス | 内容 |
+|---|---|
+| `/` `/search` `/stores/[id]` `/deals` | ホーム・探す・店舗詳細・お得（ログイン不要） |
+| `/login` `/register` | メールのリンクでログイン・会員登録 |
+| `/mypage` `/mypage/card` `/rewards` | マイページ・会員証QR・特典 |
+| `/store/[id]`（`/scan` `/deals` `/logs` `/manage`） | 店舗管理（その店のオーナー・スタッフ、運営） |
+| `/admin` | 運営管理（`admins` に登録された人だけ） |
+
 ## アプリを手元で動かす
 
 Node.js 20.9 以上が必要です。

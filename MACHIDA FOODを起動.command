@@ -16,9 +16,9 @@ if ! command -v node >/dev/null 2>&1; then
 fi
 echo "Node.js $(node -v) を確認しました"
 
-if [ ! -d node_modules ]; then
+if [ ! -d node_modules ] || [ package.json -nt node_modules/.package-lock.json ]; then
   echo ""
-  echo "初回のみ：必要な部品をダウンロードしています（数分かかります）..."
+  echo "必要な部品をダウンロードしています（初回・更新時のみ。数分かかります）..."
   npm install --no-audit --no-fund || { echo "部品のダウンロードに失敗しました。ネット接続を確認してください。"; read -n 1 -s -r; exit 1; }
 fi
 
