@@ -73,7 +73,7 @@ export default async function StorePage({ params }: Props) {
       </div>
 
       <div className="mx-auto max-w-md space-y-7 px-4 pb-6">
-        <header className="-mt-6 rounded-2xl border border-line bg-surface p-4 shadow-card">
+        <header className="relative z-10 -mt-6 rounded-2xl border border-line bg-surface p-4 shadow-card">
           <p className="text-xs text-muted">
             {store.genre}
             {store.areaName ? `・${store.areaName}` : ""}
