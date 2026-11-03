@@ -88,8 +88,9 @@
   --color-tone-4: var(--c-tone-4);
   --color-tone-5: var(--c-tone-5);
   --shadow-card: var(--shadow-card);
-  --font-display: var(--font-serif-jp), "Hiragino Mincho ProN", "Yu Mincho", serif;
-  --font-sans: var(--font-sans-jp), "Hiragino Sans", "Yu Gothic", system-ui, sans-serif;
+  /* 端末に入っている日本語フォントを使う（iPhone・Mac：ヒラギノ、Android：Noto、Windows：游）。外部から読み込まないので速く、組み立ても安定する */
+  --font-display: "Hiragino Mincho ProN", "Noto Serif JP", "Noto Serif CJK JP", "Yu Mincho", serif;
+  --font-sans: "Hiragino Sans", "Hiragino Kaku Gothic ProN", "Noto Sans JP", "Noto Sans CJK JP", "Yu Gothic", system-ui, sans-serif;
 }
 
 html {
