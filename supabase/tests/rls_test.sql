@@ -266,4 +266,24 @@ begin
   raise notice 'PASS T21 public のすべてのテーブルで RLS が有効';
 end $$;
 
+-- ---------- トリガー専用の関数は画面から呼べない・search_path が固定されている ----------
+do $$
+declare t text;
+begin
+  if has_function_privilege('authenticated', 'public.check_equipped()', 'execute')
+     or has_function_privilege('anon', 'public.protect_store_fields()', 'execute')
+     or has_function_privilege('anon', 'public.set_updated_at()', 'execute') then
+    raise exception 'FAIL T22: トリガー専用の関数が画面から呼べる';
+  end if;
+  if has_function_privilege('anon', 'public.issue_member_token()', 'execute') then
+    raise exception 'FAIL T22: 未ログインで会員証QRを発行できる';
+  end if;
+  select string_agg(p.proname, ', ') into t
+    from pg_proc p join pg_namespace n on n.oid = p.pronamespace
+   where n.nspname = 'public' and p.prokind = 'f'
+     and not exists (select 1 from unnest(coalesce(p.proconfig, '{}')) c where c like 'search_path=%');
+  if t is not null then raise exception 'FAIL T22: search_path が固定されていない関数: %', t; end if;
+  raise notice 'PASS T22 トリガー専用の関数は呼べず、すべての関数の search_path が固定されている';
+end $$;
+
 \echo 'ALL TESTS PASSED'

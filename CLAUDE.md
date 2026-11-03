@@ -120,8 +120,9 @@ MVPはデモ用の**架空5店舗**で完成させる。実在店舗の名前・
 - 2026-11-02：事業提案書・プレゼン資料・デモ版アプリ（1ファイルの試作）を作成。追加機能を PROJECT_BRIEF.md 第15章に記録
 - 2026-11-03：来店認証（会員証QR＋予備の店舗PIN）、ログイン（メールで開始・後でLINE）、Phase割り当てを確定。Phase 1のDB設計を作成（`docs/DB_DESIGN.md`、`supabase/`）。`bash scripts/test-db.sh` で21項目のアクセステストがすべて合格
 - 2026-11-03：GitHub（`Yasuya22/machida-food`、非公開）とSupabase（開発用プロジェクト ID `wwurulppgxqhdhakryxv`、シンガポールリージョン。本番は公開前に東京リージョンで別に作成）を作成。設計ファイル一式をGitHubに保存
-- 2026-11-03：開発用SupabaseにPhase 1のDBとデモデータを反映（26テーブルすべてRLS有効・ポリシー42件・架空5店舗）。`issue_member_token()`（会員証QRの発行）だけは確認画面の都合で未反映のため、SQL Editorで実行が必要。マイグレーション履歴（supabase_migrations）には未登録なので、CLIを使い始めるときに登録する
-- 次の作業：`issue_member_token()` の反映 → セキュリティ診断の指摘（search_path未設定の関数3件など）を新しいマイグレーションで対応 → Next.js でPhase 1の作成開始
+- 2026-11-03：開発用SupabaseにPhase 1のDBとデモデータを反映（26テーブルすべてRLS有効・ポリシー42件・架空5店舗）。2本目のマイグレーション（`20261103010000_member_token_and_hardening.sql`）で会員証QRの発行関数を入れ、関数の安全設定を強化。テストは22項目すべて合格。マイグレーション履歴（supabase_migrations）には未登録なので、CLIを使い始めるときに登録する
+- 残課題：期限切れの会員証QR番号の片付け（定期実行）を後で追加
+- 次の作業：Next.js でPhase 1の作成開始（計画を示して承認後に実装）
 
 ## データベースの変更ルール
 
