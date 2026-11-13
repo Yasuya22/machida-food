@@ -3,7 +3,7 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { BRANDS, currentBrand } from "@/config/brand";
 import { getSession, safeNext } from "@/lib/auth";
-import { BrandSeal } from "@/components/ui/BrandMark";
+import { BrandLogo } from "@/components/ui/BrandMark";
 import { LoginForm } from "./LoginForm";
 
 export const metadata: Metadata = { title: "ログイン" };
@@ -17,10 +17,7 @@ export default async function LoginPage({ searchParams }: { searchParams: Promis
 
   return (
     <main className="mx-auto flex min-h-dvh max-w-md flex-col justify-center px-4 py-10">
-      <div className="flex items-center gap-2.5">
-        <BrandSeal className="h-10 w-10 text-brand" />
-        <p className="text-[13px] font-bold tracking-[0.18em] text-brand">{brand.name}</p>
-      </div>
+      <BrandLogo name={brand.name} className="mx-auto w-40" />
       <h1 className="mt-5 font-display text-2xl font-bold">ログイン・会員登録</h1>
       <p className="mt-1 text-sm text-muted">メールに届くリンクを押すだけで入れます。</p>
       {sp.error ? <p className="mt-4 rounded-md bg-full-soft p-3 text-sm text-full">リンクの有効期限が切れたか、すでに使われています。もう一度メールアドレスを入れてください。</p> : null}

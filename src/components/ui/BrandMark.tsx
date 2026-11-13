@@ -1,35 +1,15 @@
 /**
- * MACHIDA FOOD のマーク（判子のような角印に「町」）と、文字のロゴ
- * 色はトークンから取るので、NIGHT でもそのまま差し替わる
+ * MACHIDA FOOD のロゴ（運営者支給のリスのシェフ。2026-11-13）
+ * - ロゴ全体：public/brand/logo.webp（横600px）・logo-sm.webp（横300px）。背景は透明
+ * - 顔だけの丸いマーク：public/brand/mark.webp（各画面の見出し・アプリのアイコンと同じ絵）
+ * 元画像から作り直すときは、背景を透明にしてこのサイズで書き出す
  */
-export function BrandSeal({ className = "h-9 w-9" }: { className?: string }) {
-  return (
-    <svg viewBox="0 0 40 40" className={className} aria-hidden="true">
-      <rect x="2" y="2" width="36" height="36" rx="5" fill="none" stroke="currentColor" strokeWidth="2.5" />
-      <rect x="6" y="6" width="28" height="28" rx="2" fill="none" stroke="currentColor" strokeWidth="1" opacity="0.6" />
-      <text
-        x="20"
-        y="28.5"
-        textAnchor="middle"
-        fontSize="22"
-        fontWeight="700"
-        fill="currentColor"
-        style={{ fontFamily: "var(--font-display)" }}
-      >
-        町
-      </text>
-    </svg>
-  );
+/* eslint-disable @next/next/no-img-element */
+
+export function BrandLogo({ name, className = "w-28" }: { name: string; className?: string }) {
+  return <img src="/brand/logo-sm.webp" alt={name} width={300} height={333} className={`h-auto ${className}`} />;
 }
 
-export function BrandLogo({ name, tagline }: { name: string; tagline?: string }) {
-  return (
-    <div className="flex items-center gap-2.5">
-      <BrandSeal className="h-10 w-10 text-accent-bright" />
-      <div className="leading-tight">
-        <p className="text-[13px] font-bold tracking-[0.18em] text-on-brand">{name}</p>
-        {tagline ? <p className="text-xs text-on-brand-soft">{tagline}</p> : null}
-      </div>
-    </div>
-  );
+export function BrandMark({ className = "h-10 w-10" }: { className?: string }) {
+  return <img src="/brand/mark.webp" alt="" width={192} height={192} className={`rounded-full ${className}`} aria-hidden="true" />;
 }

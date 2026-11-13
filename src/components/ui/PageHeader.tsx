@@ -1,6 +1,6 @@
-import { BrandSeal } from "./BrandMark";
+import { BrandMark } from "./BrandMark";
 
-/** 各画面の見出し（深緑の帯。右上に「町」の角印） */
+/** 各画面の見出し（深緑の帯。右上にロゴのリスの顔） */
 export function PageHeader({ title, lead }: { title: string; lead?: string }) {
   return (
     <header className="bg-brand px-4 pb-5 pt-[calc(env(safe-area-inset-top)+18px)] text-on-brand">
@@ -9,7 +9,7 @@ export function PageHeader({ title, lead }: { title: string; lead?: string }) {
           <h1 className="font-display text-[26px] font-bold leading-tight">{title}</h1>
           {lead ? <p className="mt-1.5 text-sm text-on-brand-soft">{lead}</p> : null}
         </div>
-        <BrandSeal className="mt-0.5 h-8 w-8 shrink-0 text-accent-bright/80" />
+        <BrandMark className="h-11 w-11 shrink-0 ring-2 ring-accent-bright/70" />
       </div>
     </header>
   );
