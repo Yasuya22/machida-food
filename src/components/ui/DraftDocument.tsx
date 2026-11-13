@@ -7,7 +7,7 @@ import Link from "next/link";
 export function DraftDocument({ title, sections }: { title: string; sections: { heading: string; body: string }[] }) {
   return (
     <main className="mx-auto max-w-md px-4 py-8">
-      <p className="rounded-xl bg-warn-soft p-3 text-sm font-bold text-warn">
+      <p className="rounded-md bg-warn-soft p-3 text-sm font-bold text-warn">
         これは開発用の仮の文面です。内容は確定しておらず、公開前に運営者が確認・修正します。
       </p>
       <h1 className="mt-6 font-display text-2xl font-bold">{title}（仮）</h1>

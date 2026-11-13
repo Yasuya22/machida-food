@@ -35,7 +35,9 @@
   --c-tone-3: #4f5b3a;
   --c-tone-4: #8a6a2e;
   --c-tone-5: #3e4e5e;
-  --shadow-card: 0 1px 2px rgb(30 43 36 / 0.05), 0 6px 18px rgb(30 43 36 / 0.07);
+  /* 影はごく薄く（浮かせるより、罫線で区切る。紙の品書き・商店街の貼り紙のような落ち着き） */
+  --shadow-card: 0 1px 0 rgb(30 43 36 / 0.06);
+  --c-rule: #cfc4a8;          /* 見出しの罫線 */
   color-scheme: light;
 }
 
@@ -65,7 +67,8 @@
   --c-tone-3: #2f3d3a;
   --c-tone-4: #5a4a2a;
   --c-tone-5: #33334d;
-  --shadow-card: 0 1px 2px rgb(0 0 0 / 0.4), 0 4px 14px rgb(0 0 0 / 0.3);
+  --shadow-card: 0 1px 0 rgb(0 0 0 / 0.4);
+  --c-rule: #3a4258;
   color-scheme: dark;
 }
 
@@ -89,6 +92,7 @@
   --color-full-soft: var(--c-full-soft);
   --color-sale: var(--c-sale);
   --color-sale-soft: var(--c-sale-soft);
+  --color-rule: var(--c-rule);
   --color-tone-1: var(--c-tone-1);
   --color-tone-2: var(--c-tone-2);
   --color-tone-3: var(--c-tone-3);
@@ -117,4 +121,19 @@ body {
 :focus-visible {
   outline: 2px solid var(--c-accent-bright);
   outline-offset: 2px;
+}
+
+/* 品書きの点線つなぎ（料理名 ……… 値段） */
+.leader {
+  flex: 1;
+  min-width: 1.5rem;
+  border-bottom: 2px dotted var(--c-rule);
+  transform: translateY(-0.35em);
+}
+
+/* 見出しの下の二重線（新聞・品書きの罫線） */
+.rule-double {
+  border-top: 1px solid var(--c-rule);
+  border-bottom: 1px solid var(--c-rule);
+  height: 4px;
 }

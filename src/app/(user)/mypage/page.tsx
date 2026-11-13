@@ -22,12 +22,12 @@ export default async function MyPage({ searchParams }: { searchParams: Promise<{
   if (!session) {
     return (
       <main>
-        <PageHeader title="マイページ" lead="会員証・ランク・着せ替え" />
+        <PageHeader title="マイページ" lead="会員証、ポイント、あなたの相棒" />
         <div className="mx-auto max-w-md space-y-4 px-4 py-6">
-          <div className="rounded-2xl border border-line bg-surface p-5 text-center shadow-card">
+          <div className="rounded-lg border border-line bg-surface p-5 text-center shadow-card">
             <p className="font-display text-lg font-bold">ログインすると使えます</p>
-            <p className="mt-1 text-sm text-muted">会員証QR、来店スタンプ、町田ポイント、ランクのキャラクター。</p>
-            <Link href="/login?next=/mypage" className="mt-4 block rounded-xl bg-brand py-3 text-sm font-bold text-on-brand">
+            <p className="mt-1 text-sm text-muted">お店で見せる会員証、来店スタンプ、町田ポイント、ランクごとの相棒キャラクター。</p>
+            <Link href="/login?next=/mypage" className="mt-4 block rounded-md bg-brand py-3 text-sm font-bold text-on-brand">
               ログイン・会員登録
             </Link>
           </div>
@@ -56,11 +56,11 @@ export default async function MyPage({ searchParams }: { searchParams: Promise<{
       <section className="bg-brand px-4 pb-6 pt-[calc(env(safe-area-inset-top)+20px)] text-on-brand">
         <div className="mx-auto max-w-md">
           <div className="flex items-baseline justify-between">
-            <p className="text-xs tracking-[0.3em] text-accent-bright">MY PAGE</p>
+            <p className="text-xs font-bold text-accent-bright">MACHIDA FOOD 会員</p>
             <p className="text-xs text-on-brand-soft">会員番号 {String(profile.member_seq).padStart(6, "0")}</p>
           </div>
           <div className="mt-3 flex flex-col items-center">
-            <div className="relative flex h-72 w-full items-end justify-center rounded-3xl border-2 bg-on-brand/5" style={{ borderColor: frameColor }}>
+            <div className="relative flex h-72 w-full items-end justify-center rounded-lg border-2 bg-on-brand/5" style={{ borderColor: frameColor }}>
               {img ? (
                 <Image src={img} alt={`${rank?.name ?? ""}ランクのキャラクター（${rank?.animal ?? ""}）`} width={280} height={340} className="h-[17.5rem] w-auto object-contain" priority unoptimized={img.startsWith("http")} />
               ) : null}
@@ -77,15 +77,15 @@ export default async function MyPage({ searchParams }: { searchParams: Promise<{
       </section>
 
       <div className="mx-auto max-w-md space-y-6 px-4 py-6">
-        {msg ? <p className="rounded-xl bg-accent-soft p-3 text-sm text-accent">{msg}</p> : null}
+        {msg ? <p className="rounded-md bg-accent-soft p-3 text-sm text-accent">{msg}</p> : null}
 
-        <Link href="/mypage/card" className="flex items-center justify-between rounded-2xl bg-accent-bright px-5 py-4 font-bold text-brand shadow-card">
+        <Link href="/mypage/card" className="flex items-center justify-between rounded-lg bg-accent-bright px-5 py-4 font-bold text-brand shadow-card">
           会員証（QRコード）を表示
           <Icon name="arrow" className="h-5 w-5" />
         </Link>
         <Link href="/install" className="block text-center text-xs text-accent underline">ホーム画面に追加して、アプリとして使う</Link>
 
-        <section className="rounded-2xl border border-line bg-surface p-5 shadow-card">
+        <section className="rounded-lg border border-line bg-surface p-5 shadow-card">
           <div className="flex items-baseline justify-between">
             <h2 className="font-display text-xl font-bold">町田ポイント</h2>
             <Link href="/rewards" className="text-xs text-accent underline">履歴</Link>
@@ -118,8 +118,8 @@ export default async function MyPage({ searchParams }: { searchParams: Promise<{
               const unlocks = member.cosmetics.filter((c) => c.unlock_rank_id === r.id);
               const pic = publicImageUrl(r.image_path);
               return (
-                <li key={r.id} className={`flex gap-3 rounded-2xl border p-3 ${current ? "border-accent-bright bg-accent-soft/60 shadow-card" : "border-line/70 bg-surface"} ${reached || current ? "" : "opacity-75"}`}>
-                  <div className={`flex h-16 w-16 shrink-0 items-end justify-center overflow-hidden rounded-xl ${current ? "bg-brand" : "bg-bg"}`}>
+                <li key={r.id} className={`flex gap-3 rounded-lg border p-3 ${current ? "border-accent-bright bg-accent-soft/60 shadow-card" : "border-line/70 bg-surface"} ${reached || current ? "" : "opacity-75"}`}>
+                  <div className={`flex h-16 w-16 shrink-0 items-end justify-center overflow-hidden rounded-md ${current ? "bg-brand" : "bg-bg"}`}>
                     {pic ? (
                       // eslint-disable-next-line @next/next/no-img-element
                       <img src={pic} alt="" className={`h-[60px] w-auto object-contain ${reached ? "" : "grayscale"}`} loading="lazy" />
@@ -146,7 +146,7 @@ export default async function MyPage({ searchParams }: { searchParams: Promise<{
           <p className="text-xs text-muted">ランクは累計獲得ポイントで決まり、ポイントを交換しても下がりません。特典の内容は変わることがあります。</p>
         </section>
 
-        <section className="space-y-3 rounded-2xl border border-line bg-surface p-5 shadow-card">
+        <section className="space-y-3 rounded-lg border border-line bg-surface p-5 shadow-card">
           <h2 className="font-display text-xl font-bold">着せ替え</h2>
           {(["title", "frame", "outfit"] as const).map((slot) => {
             const items = member.cosmetics.filter((c) => c.kind === slot);
@@ -156,7 +156,7 @@ export default async function MyPage({ searchParams }: { searchParams: Promise<{
                 <input type="hidden" name="slot" value={slot} />
                 <label className="flex-1 space-y-1 text-xs text-muted">
                   {SLOT_LABEL[slot]}
-                  <select name="cosmetic_id" defaultValue={current} className="w-full rounded-xl border border-line bg-surface px-3 py-2.5 text-sm text-ink">
+                  <select name="cosmetic_id" defaultValue={current} className="w-full rounded-md border border-line bg-surface px-3 py-2.5 text-sm text-ink">
                     <option value="">なし</option>
                     {items.map((c) => {
                       const need = member.ranks.find((r) => r.id === c.unlock_rank_id);
@@ -169,7 +169,7 @@ export default async function MyPage({ searchParams }: { searchParams: Promise<{
                     })}
                   </select>
                 </label>
-                <button className="rounded-xl border border-brand px-3 py-2.5 text-sm font-bold text-brand">変更</button>
+                <button className="rounded-md border border-brand px-3 py-2.5 text-sm font-bold text-brand">変更</button>
               </form>
             );
           })}
@@ -177,16 +177,16 @@ export default async function MyPage({ searchParams }: { searchParams: Promise<{
         </section>
 
         {stores.data?.length || admin.data ? (
-          <section className="space-y-2 rounded-2xl border border-line bg-surface p-5 shadow-card">
+          <section className="space-y-2 rounded-lg border border-line bg-surface p-5 shadow-card">
             <h2 className="font-display text-xl font-bold">お店・運営の方</h2>
             {(stores.data ?? []).map((m) => (
-              <Link key={m.store_id} href={`/store/${m.store_id}`} className="flex items-center justify-between rounded-xl border border-line px-4 py-3 text-sm">
+              <Link key={m.store_id} href={`/store/${m.store_id}`} className="flex items-center justify-between rounded-md border border-line px-4 py-3 text-sm">
                 {m.stores?.name ?? "店舗"}の管理画面
                 <span className="text-xs text-muted">{m.role === "store_owner" ? "オーナー" : "スタッフ"}</span>
               </Link>
             ))}
             {admin.data ? (
-              <Link href="/admin" className="flex items-center justify-between rounded-xl bg-brand px-4 py-3 text-sm font-bold text-on-brand">
+              <Link href="/admin" className="flex items-center justify-between rounded-md bg-brand px-4 py-3 text-sm font-bold text-on-brand">
                 運営管理画面
                 <Icon name="arrow" className="h-4 w-4" />
               </Link>
@@ -194,21 +194,21 @@ export default async function MyPage({ searchParams }: { searchParams: Promise<{
           </section>
         ) : null}
 
-        <section className="space-y-3 rounded-2xl border border-line bg-surface p-5 shadow-card">
+        <section className="space-y-3 rounded-lg border border-line bg-surface p-5 shadow-card">
           <h2 className="font-display text-xl font-bold">登録情報</h2>
           <form action={rename} className="flex items-end gap-2">
             <label className="flex-1 space-y-1 text-xs text-muted">
               ニックネーム
-              <input name="nickname" defaultValue={profile.nickname} maxLength={12} className="w-full rounded-xl border border-line bg-surface px-3 py-2.5 text-sm text-ink" />
+              <input name="nickname" defaultValue={profile.nickname} maxLength={12} className="w-full rounded-md border border-line bg-surface px-3 py-2.5 text-sm text-ink" />
             </label>
-            <button className="rounded-xl border border-brand px-3 py-2.5 text-sm font-bold text-brand">変更</button>
+            <button className="rounded-md border border-brand px-3 py-2.5 text-sm font-bold text-brand">変更</button>
           </form>
           <p className="text-xs text-muted">
             誕生月：{profile.birth_month ? `${profile.birth_month}月` : "未登録"}　／　20歳以上の確認：{profile.adult_confirmed_at ? "済み" : "なし"}
           </p>
           {session.email ? <p className="text-xs text-muted">ログイン中：{session.email}</p> : null}
           <form action="/auth/signout" method="post">
-            <button className="w-full rounded-xl border border-line py-2.5 text-sm text-muted">ログアウト</button>
+            <button className="w-full rounded-md border border-line py-2.5 text-sm text-muted">ログアウト</button>
           </form>
           <Link href="/mypage/delete" className="block text-center text-xs text-muted underline">退会する</Link>
         </section>

@@ -31,7 +31,7 @@ export default async function DeletePage({ searchParams }: { searchParams: Promi
             <input type="checkbox" name="confirm" value="1" required className="mt-1 h-4 w-4" />
             上の内容を理解し、退会します
           </label>
-          <button className="w-full rounded-xl bg-full py-3 text-sm font-bold text-white">退会する</button>
+          <button className="w-full rounded-md bg-full py-3 text-sm font-bold text-white">退会する</button>
         </form>
         <Link href="/mypage" className="block text-center text-sm text-muted underline">マイページに戻る</Link>
       </div>

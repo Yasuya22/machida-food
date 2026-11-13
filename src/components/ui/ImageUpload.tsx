@@ -53,9 +53,9 @@ export function ImageUpload({
       <input type="hidden" name="image_path" value={path} />
       {preview ? (
         // eslint-disable-next-line @next/next/no-img-element
-        <img src={preview} alt="" className="h-36 w-full rounded-xl border border-line object-cover" />
+        <img src={preview} alt="" className="h-36 w-full rounded-md border border-line object-cover" />
       ) : null}
-      <label className="block cursor-pointer rounded-xl border border-dashed border-line px-4 py-3 text-center text-sm text-muted">
+      <label className="block cursor-pointer rounded-md border border-dashed border-line px-4 py-3 text-center text-sm text-muted">
         {label}
         <input type="file" accept="image/jpeg,image/png,image/webp" className="sr-only" onChange={(e) => e.target.files?.[0] && onFile(e.target.files[0])} />
       </label>

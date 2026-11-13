@@ -39,7 +39,7 @@ function parseFilters(p: Params): SearchFilters {
   };
 }
 
-const selectClass = "w-full rounded-xl border border-line bg-surface px-3 py-2.5 text-sm";
+const selectClass = "w-full rounded-md border border-line bg-surface px-3 py-2.5 text-sm";
 
 export default async function SearchPage({ searchParams }: { searchParams: Promise<Params> }) {
   const filters = parseFilters(await searchParams);
@@ -50,18 +50,25 @@ export default async function SearchPage({ searchParams }: { searchParams: Promi
 
   return (
     <main>
-      <PageHeader title="探す" lead="エリア・ジャンル・予算・こだわり条件から" />
+      <PageHeader title="探す" lead="駅のまわりのお店を、場所や予算でしぼりこむ" />
       <div className="mx-auto max-w-md space-y-6 px-4 py-6">
-        <form method="get" className="space-y-4 rounded-2xl border border-line/70 bg-surface p-4 shadow-card">
-          <label className="flex min-h-12 items-center gap-2 rounded-xl border border-line bg-bg px-3">
+        <form method="get" className="space-y-3">
+          <label className="flex min-h-12 items-center gap-2 rounded-md border border-line bg-surface px-3">
             <Icon name="search" className="h-5 w-5 text-muted" />
-            <input name="q" type="search" defaultValue={filters.q ?? ""} placeholder="店名・ジャンル・エリアで検索" className="w-full bg-transparent text-base outline-none" enterKeyHint="search" />
+            <input name="q" type="search" defaultValue={filters.q ?? ""} placeholder="焼肉、原町田、カフェ…" className="w-full bg-transparent text-base outline-none" enterKeyHint="search" />
           </label>
-          <label className="flex items-center gap-3 rounded-xl bg-ok-soft px-3 py-2.5 text-sm font-bold text-ok">
+          <label className="flex items-center gap-3 rounded-md bg-ok-soft px-3 py-2.5 text-sm font-bold text-ok">
             <input type="checkbox" name="now" value="1" defaultChecked={filters.availableNow} className="h-4 w-4 accent-[var(--c-ok)]" />
             今すぐ入れるお店だけ
           </label>
 
+          {/* 細かい条件は畳んでおく（使っているときは開いたまま） */}
+          <details open={!!(filters.area || filters.genre || filters.budget || filters.party || filters.features.length)} className="group rounded-md border border-line bg-surface">
+            <summary className="flex min-h-12 cursor-pointer list-none items-center justify-between px-3 text-[15px] font-bold [&::-webkit-details-marker]:hidden">
+              条件をしぼる
+              <Icon name="arrow" className="h-4 w-4 rotate-90 text-muted transition-transform group-open:-rotate-90" />
+            </summary>
+            <div className="space-y-4 border-t border-line p-3">
           <div className="grid grid-cols-2 gap-3">
             <label className="space-y-1 text-xs text-muted">
               エリア
@@ -124,32 +131,34 @@ export default async function SearchPage({ searchParams }: { searchParams: Promi
               </div>
             </fieldset>
           ) : null}
+            </div>
+          </details>
 
           <div className="flex gap-2">
-            <button type="submit" className="min-h-12 flex-1 rounded-xl bg-brand text-[15px] font-bold text-on-brand">
+            <button type="submit" className="min-h-12 flex-1 rounded-md bg-brand text-[15px] font-bold text-on-brand">
               この条件で探す
             </button>
             {active ? (
-              <Link href="/search" className="inline-flex min-h-12 items-center rounded-xl border border-line px-4 text-sm text-muted">
+              <Link href="/search" className="inline-flex min-h-12 items-center rounded-md border border-line px-4 text-sm text-muted">
                 クリア
               </Link>
             ) : null}
           </div>
         </form>
 
-        <section className="space-y-3" aria-live="polite">
+        <section className="space-y-2" aria-live="polite">
           {result.status === "ok" ? (
             <>
               <p className="text-sm">
                 <span className="font-display text-lg font-bold">{result.data.length}</span>
-                <span className="ml-1 text-muted">件のお店（駅から近い順）</span>
+                <span className="ml-1 text-muted">件（駅から近い順）</span>
               </p>
               {result.data.length === 0 ? (
-                <p className="rounded-2xl border border-line bg-surface p-4 text-sm text-muted">
-                  条件に合うお店がありません。条件を減らしてみてください。
+                <p className="py-2 text-[15px] text-muted">
+                  ぴったりのお店が見つかりませんでした。条件をひとつ外してみてください。
                 </p>
               ) : (
-                <ul className="space-y-2">
+                <ul className="border-t border-line">
                   {result.data.map((s) => (
                     <li key={s.id}>
                       <StoreCard store={s} />

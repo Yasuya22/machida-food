@@ -21,7 +21,7 @@ export default async function CardPage() {
           <Icon name="arrow" className="h-4 w-4 rotate-180" />
           マイページ
         </Link>
-        <div className="mt-6 rounded-3xl border border-accent-bright/60 bg-surface p-6 text-ink shadow-card">
+        <div className="mt-6 rounded-lg border border-accent-bright/60 bg-surface p-6 text-ink shadow-card">
           <div className="flex items-baseline justify-between">
             <p className="text-xs font-bold tracking-[0.3em] text-accent">MEMBER CARD</p>
             <p className="text-xs text-muted">{member.rank ? `${member.rank.name}ランク` : ""}</p>

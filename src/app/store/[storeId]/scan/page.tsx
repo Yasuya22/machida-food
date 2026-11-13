@@ -10,7 +10,7 @@ export default async function ScanPage({ params }: { params: Promise<{ storeId: 
   const { storeId } = await params;
   const { session, canRedeem } = await requireStoreAccess(storeId);
   if (!canRedeem) {
-    return <p className="rounded-2xl border border-line bg-surface p-4 text-sm text-muted">来店処理はこのお店のオーナー・スタッフのアカウントで行います（運営アカウントでは処理できません）。</p>;
+    return <p className="rounded-lg border border-line bg-surface p-4 text-sm text-muted">来店処理はこのお店のオーナー・スタッフのアカウントで行います（運営アカウントでは処理できません）。</p>;
   }
   const { data: pin } = await session.supabase.rpc("store_pin_today", { p_store: storeId });
   const { data } = await session.supabase

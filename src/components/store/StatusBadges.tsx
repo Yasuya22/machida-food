@@ -94,7 +94,7 @@ export function SeatPanel({ state }: { state: SeatState }) {
         <SeatBadge state={state} large />
         <UpdatedAt state={state} />
       </div>
-      <ul className="divide-y divide-line overflow-hidden rounded-xl border border-line">
+      <ul className="divide-y divide-line overflow-hidden rounded-md border border-line">
         {state.seats.map((s) => (
           <li key={s.id} className="flex items-center justify-between px-4 py-3 text-[15px]">
             <span>{s.name}</span>

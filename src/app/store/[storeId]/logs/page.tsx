@@ -50,7 +50,7 @@ export default async function LogsPage({ params }: { params: Promise<{ storeId: 
       <section className="space-y-2">
         <h2 className="font-display text-lg font-bold">最近の記録</h2>
         {logs.length === 0 ? <p className={`${cardClass} text-sm text-muted`}>まだ記録はありません。</p> : null}
-        <ul className="divide-y divide-line rounded-2xl border border-line bg-surface shadow-card">
+        <ul className="divide-y divide-line rounded-lg border border-line bg-surface shadow-card">
           {logs.map((l) => {
             const t = tokyoNow(new Date(l.created_at));
             const pts = typeof l.detail?.points === "number" ? `${l.detail.points}pt` : "";

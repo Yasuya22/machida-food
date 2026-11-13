@@ -7,7 +7,7 @@ import { LoadError, Section } from "@/components/ui/Section";
 import { buttonClass, cardClass, outlineButtonClass } from "@/components/ui/Flash";
 import { StoreThumb } from "@/components/store/StoreThumb";
 import { OpenBadge, SeatPanel } from "@/components/store/StatusBadges";
-import { budgetLabel } from "@/components/store/StoreCard";
+import { budgetLabel, WalkLabel } from "@/components/store/StoreCard";
 import { CouponCard, SpecialCard, TimeSaleCard } from "@/components/store/DealCards";
 import { loadStoreDetail } from "@/lib/stores/queries";
 import { isDemoImage, publicImageUrl } from "@/lib/images";
@@ -111,13 +111,17 @@ export default async function StorePage({ params }: Props) {
       <div className="mx-auto max-w-md space-y-8 px-4 pb-6">
         {/* ---------- 店名と、すぐ知りたいこと ---------- */}
         <header className={`relative z-10 -mt-6 ${cardClass}`}>
-          <p className="text-sm text-muted">
-            {store.genre}
-            {store.areaName ? `・${store.areaName}` : ""}
-            {store.walk_minutes != null ? `・町田駅から徒歩${store.walk_minutes}分` : ""}
+          <p className="flex flex-wrap items-center gap-x-3 text-sm text-muted">
+            <span className="font-bold text-accent">{store.genre}</span>
+            <WalkLabel minutes={store.walk_minutes} area={store.areaName} />
           </p>
           <h1 className="mt-1 font-display text-[26px] font-bold leading-snug">{store.name}</h1>
-          {store.description ? <p className="mt-2 text-[15px] text-muted">{store.description}</p> : null}
+          {store.description ? (
+            <figure className="mt-3 border-l-2 border-accent-bright pl-3">
+              <blockquote className="font-display text-[15px] leading-relaxed">「{store.description}」</blockquote>
+              <figcaption className="mt-0.5 text-xs text-muted">― お店から</figcaption>
+            </figure>
+          ) : null}
           <div className="mt-3 flex flex-wrap items-center gap-2">
             <OpenBadge state={store.open} />
             {budget ? <span className="text-sm text-muted">予算 {budget}</span> : null}
@@ -157,7 +161,7 @@ export default async function StorePage({ params }: Props) {
           </Section>
         ) : null}
 
-        <Section title="予算別プラン" note="税込みの総額（1人あたり）" isEmpty={plans.length === 0} empty="プランの登録はまだありません。">
+        <Section title="予算別プラン" note="税込みの総額（1人あたり）" isEmpty={plans.length === 0} empty="プランはまだ載っていません。">
           <ul className="space-y-3">
             {plans.map((p) => (
               <li key={p.id} className={cardClass}>
@@ -211,7 +215,7 @@ export default async function StorePage({ params }: Props) {
           </div>
         </Section>
 
-        <Section title="メニュー" note="税込み" isEmpty={menu.length === 0} empty="メニューの登録はまだありません。">
+        <Section title="メニュー" note="税込み" isEmpty={menu.length === 0} empty="メニューはまだ載っていません。">
           <ul className={`${cardClass} divide-y divide-line p-0`}>
             {menu.map((m) => (
               <li key={m.id} className="flex items-baseline justify-between gap-3 px-4 py-3 text-[15px]">
@@ -223,8 +227,8 @@ export default async function StorePage({ params }: Props) {
         </Section>
 
         <section className={`${cardClass} space-y-3`}>
-          <p className="text-base font-bold">来店スタンプ</p>
-          <p className="text-[15px] text-muted">お会計のときに会員証のQRコードを見せてください。お店の端末で読み取れないときは、店舗PINでも押せます。</p>
+          <p className="font-display text-lg font-bold">来店スタンプ</p>
+          <p className="text-[15px] text-muted">お会計のときに、会員証のQRコードをお店の人に見せてください。読み取れないときは、お店の人に4けたの番号（店舗PIN）を聞いて押すこともできます。</p>
           <div className="grid grid-cols-2 gap-2">
             <Link href="/mypage/card" className={buttonClass}>会員証を表示</Link>
             <Link href={`/stores/${store.id}/pin`} className={outlineButtonClass}>店舗PINで押す</Link>

@@ -23,7 +23,7 @@ export function StoreTabs({ tabs }: { tabs: StoreTab[] }) {
               key={t.href}
               href={t.href}
               aria-current={active ? "page" : undefined}
-              className={`flex min-h-20 flex-col items-center justify-center gap-1.5 rounded-2xl text-[15px] font-bold transition-colors ${
+              className={`flex min-h-20 flex-col items-center justify-center gap-1.5 rounded-lg text-[15px] font-bold transition-colors ${
                 active ? "bg-accent-bright text-brand shadow-card" : "bg-on-brand/10 text-on-brand"
               }`}
             >
@@ -41,7 +41,7 @@ export function StoreTabs({ tabs }: { tabs: StoreTab[] }) {
               key={t.href}
               href={t.href}
               aria-current={active ? "page" : undefined}
-              className={`inline-flex min-h-10 flex-1 items-center justify-center gap-1.5 rounded-xl text-sm font-bold ${
+              className={`inline-flex min-h-10 flex-1 items-center justify-center gap-1.5 rounded-md text-sm font-bold ${
                 active ? "bg-on-brand text-brand" : "border border-on-brand-soft/40 text-on-brand-soft"
               }`}
             >

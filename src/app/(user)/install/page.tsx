@@ -13,7 +13,7 @@ const STEPS = {
 export default function InstallPage() {
   return (
     <main>
-      <PageHeader title="アプリとして使う" lead="ホーム画面から、ワンタップで開けます" />
+      <PageHeader title="アプリとして使う" lead="スマホのホーム画面に置いて、すぐ開けるように" />
       <div className="mx-auto max-w-md space-y-5 px-4 py-6">
         <InstallButton />
         {(["iphone", "android"] as const).map((k) => (

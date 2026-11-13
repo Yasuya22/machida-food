@@ -11,13 +11,13 @@ export default async function DealsPage() {
   const result = await loadDeals();
   return (
     <main>
-      <PageHeader title="お得" lead="クーポン・タイムセール・今日の限定" />
+      <PageHeader title="お得" lead="今日だけの値引きと、お店のクーポン" />
       <div className="mx-auto max-w-md space-y-8 px-4 py-6">
         {result.status !== "ok" ? (
           <LoadError unconfigured={result.status === "unconfigured"} />
         ) : (
           <>
-            <Section title="タイムセール" note="開催中" isEmpty={result.data.timeSales.length === 0} empty="開催中のタイムセールはありません。">
+            <Section title="時間限定のセール" note="いま開催中" isEmpty={result.data.timeSales.length === 0} empty="いまはセールをやっているお店がありません。夕方以降に増えることが多いです。">
               <div className="space-y-2">
                 {result.data.timeSales.map((s) => (
                   <TimeSaleCard key={s.id} sale={s} showStore />
@@ -25,7 +25,7 @@ export default async function DealsPage() {
               </div>
             </Section>
 
-            <Section title="今日の限定メニュー" isEmpty={result.data.specials.length === 0} empty="今日の限定メニューはありません。">
+            <Section title="今日だけのひと皿" isEmpty={result.data.specials.length === 0} empty="今日の限定メニューは、まだ出ていません。">
               <div className="space-y-2">
                 {result.data.specials.map((s) => (
                   <SpecialCard key={s.id} special={s} showStore />
@@ -33,13 +33,13 @@ export default async function DealsPage() {
               </div>
             </Section>
 
-            <Section title="クーポン" note={`${result.data.coupons.length}件`} isEmpty={result.data.coupons.length === 0} empty="使えるクーポンはありません。">
+            <Section title="クーポン" note={`${result.data.coupons.length}件`} isEmpty={result.data.coupons.length === 0} empty="いま使えるクーポンはありません。">
               <div className="space-y-2">
                 {result.data.coupons.map((c) => (
                   <CouponCard key={c.id} coupon={c} showStore />
                 ))}
                 <p className="text-xs text-muted">
-                  ご利用の際はお会計前にお店の方へお知らせください。内容・条件はお店の判断で変わることがあります。期限が過ぎたものは自動で表示されなくなります。
+                  使うときは、お会計の前にお店の人に画面を見せてください。内容や条件はお店の判断で変わることがあります。期限が過ぎたクーポンは自動で消えます。
                 </p>
               </div>
             </Section>

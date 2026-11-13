@@ -14,7 +14,7 @@ export function StorePin({ pin }: { pin: string }) {
   }, [shown]);
 
   return (
-    <details className="rounded-2xl border border-line bg-surface p-4 shadow-card">
+    <details className="rounded-lg border border-line bg-surface p-4 shadow-card">
       <summary className="cursor-pointer text-sm font-bold">カメラが使えないとき（店舗PIN）</summary>
       <div className="mt-3 space-y-2 text-sm">
         <ol className="list-decimal space-y-1 pl-5 text-muted">
@@ -23,7 +23,7 @@ export function StorePin({ pin }: { pin: string }) {
         </ol>
         <button
           onClick={() => setShown(true)}
-          className="w-full rounded-xl border border-brand py-3 font-display text-2xl font-bold tracking-[0.5em] text-brand"
+          className="w-full rounded-md border border-brand py-3 font-display text-2xl font-bold tracking-[0.5em] text-brand"
           aria-live="polite"
         >
           {shown ? pin : "＊＊＊＊（押して表示）"}

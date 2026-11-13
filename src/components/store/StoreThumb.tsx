@@ -19,7 +19,7 @@ function initial(name: string): string {
 }
 
 const BOX = {
-  md: "h-20 w-20 shrink-0 rounded-xl",
+  md: "h-20 w-20 shrink-0 rounded-md",
   card: "h-44 w-full",
   lg: "h-56 w-full",
 } as const;

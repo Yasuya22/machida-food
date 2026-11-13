@@ -80,7 +80,7 @@ export function Scanner({ storeId, coupons }: { storeId: string; coupons: Coupon
 
   return (
     <div className="space-y-4">
-      <fieldset className="rounded-2xl border border-line bg-surface p-4 shadow-card">
+      <fieldset className="rounded-lg border border-line bg-surface p-4 shadow-card">
         <legend className="px-1 text-sm font-bold">何をしますか</legend>
         <label className="flex items-center gap-2 py-1.5 text-sm">
           <input type="radio" name="mode" value="visit" checked={mode === "visit"} onChange={() => setMode("visit")} />
@@ -96,30 +96,30 @@ export function Scanner({ storeId, coupons }: { storeId: string; coupons: Coupon
       </fieldset>
 
       {result ? (
-        <div className={`rounded-2xl p-5 text-center shadow-card ${result.ok ? "bg-ok-soft text-ok" : "bg-full-soft text-full"}`} role="status">
+        <div className={`rounded-lg p-5 text-center shadow-card ${result.ok ? "bg-ok-soft text-ok" : "bg-full-soft text-full"}`} role="status">
           <p className="font-display text-xl font-bold">{result.title}</p>
           <ul className="mt-2 space-y-0.5 text-sm text-ink">
             {result.lines.map((l) => (
               <li key={l}>{l}</li>
             ))}
           </ul>
-          <button onClick={() => { setResult(null); setManual(""); }} className="mt-4 rounded-xl bg-brand px-5 py-2.5 text-sm font-bold text-on-brand">
+          <button onClick={() => { setResult(null); setManual(""); }} className="mt-4 rounded-md bg-brand px-5 py-2.5 text-sm font-bold text-on-brand">
             次のお客様
           </button>
         </div>
       ) : (
-        <div className="space-y-3 rounded-2xl border border-line bg-surface p-4 shadow-card">
-          <div className="relative overflow-hidden rounded-xl bg-black" style={{ aspectRatio: "1 / 1", display: camera === "on" ? "block" : "none" }}>
+        <div className="space-y-3 rounded-lg border border-line bg-surface p-4 shadow-card">
+          <div className="relative overflow-hidden rounded-md bg-black" style={{ aspectRatio: "1 / 1", display: camera === "on" ? "block" : "none" }}>
             <video ref={videoRef} playsInline muted className="h-full w-full object-cover" />
-            <span className="pointer-events-none absolute inset-10 rounded-2xl border-2 border-accent-bright" />
+            <span className="pointer-events-none absolute inset-10 rounded-lg border-2 border-accent-bright" />
           </div>
           <canvas ref={canvasRef} className="hidden" />
           {camera !== "on" ? (
-            <button onClick={start} disabled={pending} className="w-full rounded-xl bg-brand py-4 text-base font-bold text-on-brand">
+            <button onClick={start} disabled={pending} className="w-full rounded-md bg-brand py-4 text-base font-bold text-on-brand">
               {pending ? "処理中…" : "カメラで会員証を読み取る"}
             </button>
           ) : (
-            <button onClick={stop} className="w-full rounded-xl border border-line py-2.5 text-sm text-muted">カメラを止める</button>
+            <button onClick={stop} className="w-full rounded-md border border-line py-2.5 text-sm text-muted">カメラを止める</button>
           )}
           {camera === "error" ? <p className="text-sm text-full">カメラを使えませんでした。ブラウザのカメラの許可を確認するか、下の番号入力をお使いください。</p> : null}
           <p className="text-center text-xs text-muted">
@@ -138,11 +138,11 @@ export function Scanner({ storeId, coupons }: { storeId: string; coupons: Coupon
                 value={manual}
                 onChange={(e) => setManual(e.target.value)}
                 placeholder="会員証の番号（32文字）"
-                className="flex-1 rounded-xl border border-line px-3 py-2 font-mono text-xs"
+                className="flex-1 rounded-md border border-line px-3 py-2 font-mono text-xs"
                 autoCapitalize="off"
                 autoCorrect="off"
               />
-              <button className="rounded-xl bg-brand px-3 text-sm font-bold text-on-brand">確定</button>
+              <button className="rounded-md bg-brand px-3 text-sm font-bold text-on-brand">確定</button>
             </form>
           </details>
         </div>

@@ -30,12 +30,12 @@ export default async function RewardsPage({ searchParams }: { searchParams: Prom
   if (!session) {
     return (
       <main>
-        <PageHeader title="特典" lead="スタンプと町田ポイント" />
+        <PageHeader title="特典" lead="たまったスタンプと、町田ポイントの使いみち" />
         <div className="mx-auto max-w-md px-4 py-6">
           <div className={`${cardClass} text-center`}>
             <p className="font-display text-lg font-bold">ログインすると使えます</p>
             <p className="mt-1 text-sm text-muted">お店ごとのスタンプカード、たまった特典、町田ポイントの履歴。</p>
-            <Link href="/login?next=/rewards" className="mt-4 block rounded-xl bg-brand py-3 text-sm font-bold text-on-brand">ログイン・会員登録</Link>
+            <Link href="/login?next=/rewards" className="mt-4 block rounded-md bg-brand py-3 text-sm font-bold text-on-brand">ログイン・会員登録</Link>
           </div>
         </div>
       </main>
@@ -62,7 +62,7 @@ export default async function RewardsPage({ searchParams }: { searchParams: Prom
 
   return (
     <main>
-      <PageHeader title="特典" lead="スタンプと町田ポイント" />
+      <PageHeader title="特典" lead="たまったスタンプと、町田ポイントの使いみち" />
       <div className="mx-auto max-w-md space-y-8 px-4 py-6">
         <Flash msg={msg} />
         <Section title="スタンプカード" isEmpty={(cards.data ?? []).length === 0} empty="まだスタンプはありません。お店で会員証を見せるとたまります（1店舗1日1回）。">
@@ -87,7 +87,7 @@ export default async function RewardsPage({ searchParams }: { searchParams: Prom
         <Section title="もらった特典" isEmpty={(rewards.data ?? []).length === 0 && myCoupons.length === 0} empty="使える特典はまだありません。">
           <div className="space-y-2">
             {myCoupons.map((c) => (
-              <div key={c.coupon_id} className="relative overflow-hidden rounded-2xl border border-accent-bright/60 bg-surface p-4 shadow-card">
+              <div key={c.coupon_id} className="relative overflow-hidden rounded-lg border border-accent-bright/60 bg-surface p-4 shadow-card">
                 <span className="absolute inset-y-0 left-0 w-1.5 bg-accent-bright" aria-hidden="true" />
                 <p className="font-bold">{c.coupons!.title}</p>
                 <p className="text-xs text-muted">{c.coupons!.stores?.name}{c.coupons!.conditions ? `・${c.coupons!.conditions}` : ""}</p>
@@ -119,7 +119,7 @@ export default async function RewardsPage({ searchParams }: { searchParams: Prom
                     </div>
                     <form action={exchange}>
                       <input type="hidden" name="item_id" value={it.id} />
-                      <button disabled={done || soldOut || short} className="shrink-0 rounded-xl bg-brand px-4 py-2.5 text-sm font-bold text-on-brand disabled:bg-line disabled:text-muted">
+                      <button disabled={done || soldOut || short} className="shrink-0 rounded-md bg-brand px-4 py-2.5 text-sm font-bold text-on-brand disabled:bg-line disabled:text-muted">
                         {done ? "交換済み" : soldOut ? "品切れ" : short ? "pt不足" : "交換する"}
                       </button>
                     </form>
@@ -132,7 +132,7 @@ export default async function RewardsPage({ searchParams }: { searchParams: Prom
         </div>
 
         <Section title="町田ポイントの履歴" isEmpty={(ledger.data ?? []).length === 0} empty="まだ履歴はありません。">
-          <ul className="divide-y divide-line rounded-2xl border border-line bg-surface shadow-card">
+          <ul className="divide-y divide-line rounded-lg border border-line bg-surface shadow-card">
             {(ledger.data ?? []).map((l) => (
               <li key={l.id} className="flex items-center justify-between px-4 py-2.5 text-sm">
                 <div>

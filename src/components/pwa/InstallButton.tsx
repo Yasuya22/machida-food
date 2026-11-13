@@ -23,7 +23,7 @@ export function InstallButton() {
     };
   }, []);
 
-  if (installed) return <p className="rounded-xl bg-ok-soft p-3 text-center text-sm font-bold text-ok">アプリとして使用中です</p>;
+  if (installed) return <p className="rounded-md bg-ok-soft p-3 text-center text-sm font-bold text-ok">アプリとして使用中です</p>;
   if (!event) return null;
   return (
     <button
@@ -33,7 +33,7 @@ export function InstallButton() {
         if (r.outcome === "accepted") setInstalled(true);
         setEvent(null);
       }}
-      className="w-full rounded-xl bg-brand py-3 text-sm font-bold text-on-brand"
+      className="w-full rounded-md bg-brand py-3 text-sm font-bold text-on-brand"
     >
       ホーム画面にインストール
     </button>

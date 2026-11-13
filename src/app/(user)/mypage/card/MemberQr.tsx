@@ -53,7 +53,7 @@ export function MemberQr() {
 
   return (
     <div className="flex flex-col items-center">
-      <div className="relative flex h-64 w-64 items-center justify-center rounded-2xl bg-white p-3 shadow-card">
+      <div className="relative flex h-64 w-64 items-center justify-center rounded-lg bg-white p-3 shadow-card">
         {svg ? <div className="h-full w-full [&>svg]:h-full [&>svg]:w-full" dangerouslySetInnerHTML={{ __html: svg }} /> : <p className="text-sm text-muted">読み込み中…</p>}
       </div>
       <div className="mt-4 h-1.5 w-64 overflow-hidden rounded-full bg-line" aria-hidden="true">
@@ -69,7 +69,7 @@ export function MemberQr() {
       {error ? (
         <div className="mt-3 text-center">
           <p className="text-sm text-full">{error}</p>
-          <button onClick={() => void refresh()} className="mt-2 rounded-xl border border-brand px-4 py-2 text-sm font-bold text-brand">
+          <button onClick={() => void refresh()} className="mt-2 rounded-md border border-brand px-4 py-2 text-sm font-bold text-brand">
             もう一度表示する
           </button>
         </div>
