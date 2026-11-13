@@ -30,7 +30,7 @@ export default async function RewardsPage({ searchParams }: { searchParams: Prom
   if (!session) {
     return (
       <main>
-        <PageHeader title="特典" lead="たまったスタンプと、町田ポイントの使いみち" />
+        <PageHeader title="特典" lead="スタンプと、ポイントの使いみち" />
         <div className="mx-auto max-w-md px-4 py-6">
           <div className={`${cardClass} text-center`}>
             <p className="font-display text-lg font-bold">ログインすると使えます</p>
@@ -62,7 +62,7 @@ export default async function RewardsPage({ searchParams }: { searchParams: Prom
 
   return (
     <main>
-      <PageHeader title="特典" lead="たまったスタンプと、町田ポイントの使いみち" />
+      <PageHeader title="特典" lead="スタンプと、ポイントの使いみち" />
       <div className="mx-auto max-w-md space-y-8 px-4 py-6">
         <Flash msg={msg} />
         <Section title="スタンプカード" isEmpty={(cards.data ?? []).length === 0} empty="まだスタンプはありません。お店で会員証を見せるとたまります（1店舗1日1回）。">

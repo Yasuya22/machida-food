@@ -36,7 +36,7 @@ export default async function AdminPage({ searchParams }: { searchParams: Promis
       <header className="bg-brand px-4 pb-4 pt-[calc(env(safe-area-inset-top)+14px)] text-on-brand">
         <div className="mx-auto max-w-md">
           <Link href="/mypage" className="text-xs text-on-brand-soft">← マイページ</Link>
-          <p className="mt-2 text-xs tracking-[0.25em] text-accent-bright">ADMIN</p>
+          <p className="mt-2 text-xs font-bold text-accent-bright">運営の管理画面</p>
           <h1 className="font-display text-xl font-bold">運営管理</h1>
         </div>
       </header>

@@ -37,7 +37,7 @@ export function AreaMap({ areas }: { areas: AreaCount[] }) {
           {/* エリアの名札（タップでそのエリアを探す） */}
           {placed.map((a) => {
             const p = AREA_MAP_POSITIONS[a.name]!;
-            const w = Math.max(64, a.name.length * 13 + 30);
+            const w = Math.max(64, a.name.length * 13 + 42);
             return (
               <a key={a.id} href={`/search?area=${a.id}`} aria-label={`${a.name}のお店（${a.count}店）`}>
                 <rect x={p.x - w / 2} y={p.y - 15} width={w} height="30" rx="15" fill="var(--c-surface)" stroke="var(--c-accent-bright)" strokeWidth="2" />

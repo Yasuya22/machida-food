@@ -45,7 +45,11 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
           <div className="flex items-center gap-4">
             <BrandLogo name={brand.name} className="w-[116px] shrink-0 drop-shadow-[0_2px_6px_rgb(0_0_0/0.25)]" />
             <div className="min-w-0">
-              <h1 className="font-display text-[25px] font-bold leading-snug">今日は、どこで食べる？</h1>
+              <h1 className="font-display text-[25px] font-bold leading-snug">
+                今日は、
+                <br />
+                どこで食べる？
+              </h1>
               <p className="mt-1.5 text-[13px] leading-relaxed text-on-brand-soft">町田駅のまわりのお店の、いま空いている席と、今日だけのひと皿。</p>
             </div>
           </div>

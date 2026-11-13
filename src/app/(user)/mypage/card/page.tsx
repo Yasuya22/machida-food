@@ -23,7 +23,7 @@ export default async function CardPage() {
         </Link>
         <div className="mt-6 rounded-lg border border-accent-bright/60 bg-surface p-6 text-ink shadow-card">
           <div className="flex items-baseline justify-between">
-            <p className="text-xs font-bold tracking-[0.3em] text-accent">MEMBER CARD</p>
+            <p className="text-xs font-bold text-accent">MACHIDA FOOD 会員証</p>
             <p className="text-xs text-muted">{member.rank ? `${member.rank.name}ランク` : ""}</p>
           </div>
           <p className="mt-1 font-display text-xl font-bold">{member.profile.nickname}</p>

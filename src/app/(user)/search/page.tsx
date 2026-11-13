@@ -50,7 +50,7 @@ export default async function SearchPage({ searchParams }: { searchParams: Promi
 
   return (
     <main>
-      <PageHeader title="探す" lead="駅のまわりのお店を、場所や予算でしぼりこむ" />
+      <PageHeader title="探す" lead="場所や予算で、お店をしぼる" />
       <div className="mx-auto max-w-md space-y-6 px-4 py-6">
         <form method="get" className="space-y-3">
           <label className="flex min-h-12 items-center gap-2 rounded-md border border-line bg-surface px-3">

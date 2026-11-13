@@ -26,7 +26,7 @@ export default async function StoreLayout({ children, params }: { children: Reac
             <Link href="/mypage" className="text-on-brand-soft">← マイページ</Link>
             <span className="rounded-full bg-accent-bright px-2 py-0.5 font-bold text-brand">{ROLE_LABEL[access.role]}</span>
           </div>
-          <p className="mt-2 text-xs tracking-[0.25em] text-accent-bright">STORE ADMIN</p>
+          <p className="mt-2 text-xs font-bold text-accent-bright">お店の管理画面</p>
           <h1 className="font-display text-xl font-bold">{access.store.name}</h1>
           {access.store.status !== "approved" ? (
             <p className="mt-1 text-xs text-warn-soft">掲載状態：{access.store.status === "pending" ? "審査中（一般には非表示）" : "停止中（一般には非表示）"}</p>
